@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "imagedata.h"
+#include "imagedata.h"             
+#include "imageutils.h"
 #include "canny_edge.h"
 
 
@@ -44,8 +45,6 @@ bool ImageData::Load(byte* data, unsigned int width, unsigned int height, int by
     }   
     return bRet;
 }
-
-
 
 ImageData* ImageData::Clone()
 {

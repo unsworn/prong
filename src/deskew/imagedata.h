@@ -1,7 +1,7 @@
 #ifndef imagedata_H_
 #define imagedata_H_                                                  
 
-#include "imageutils.h"
+#include "imagetypes.h"
 
 struct ImageData  
 {
@@ -10,9 +10,12 @@ public:
     virtual ~ImageData();
     void Cleanup();
 
-    bool Load(byte* data, unsigned int width, unsigned int height, int bytesPerPixel);  
-    ImageData* Clone();
+    bool Load(byte* data, unsigned int width, unsigned int height, int bytesPerPixel); 
+        
+    ImageData* Clone();       
+    
     bool BlurToEdges(int slices = 0); 
+    
     void BlurToEdgesRobust(); 
     
     inline int& GetID()

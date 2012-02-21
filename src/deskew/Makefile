@@ -5,7 +5,7 @@ TARGET=deskew
 
 INCLUDE=-I. -I/opt/local/include
 
-CFLAGS=-g $(INCLUDE) -DHAVE_FREEIMAGE
+CFLAGS=-g $(INCLUDE) -DHAVE_FREEIMAGE=1 -DDEBUG=1
 
 CXXFLAGS=$(CFLAGS)
 
@@ -14,6 +14,7 @@ LDFLAGS=-L/opt/local/lib -lfreeimage
 OBJECTS=\
 	list.o \
 	options.o \
+	imageutils.o \
 	imagedata.o \
 	analyzer.o \
 	main.o
