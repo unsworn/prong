@@ -14,7 +14,7 @@ namespace imageutils
 
     void FreeBitmap(FIBITMAP* bmp);
     
-    bool LoadImageData(const char* path, ImageData* i);
+    ImageData* GetOp(FIBITMAP* bmp);
 
     FIBITMAP* Create8bppBitmap(int width, int height, void* data = NULL);
 

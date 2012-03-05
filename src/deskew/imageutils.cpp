@@ -29,13 +29,13 @@ namespace imageutils
             
         if (fif == FIF_UNKNOWN)
         {
-            fprintf(stderr, "Undetermined image file format: %s\n", path);
+            ERROR("Undetermined image file format: %s\n", path);
             return NULL;
         }
             
         if (!FreeImage_FIFSupportsReading(fif))
         {   
-            fprintf(stderr, "Unsupported image file format: %s\n", path);
+            ERROR("Unsupported image file format: %s\n", path);
             return NULL;                                                 
         }         
         
@@ -52,29 +52,29 @@ namespace imageutils
         FreeImage_Unload(bmp);
     }
     
-    bool LoadImageData(const char* path, ImageData* i)
+    ImageData* GetOp(FIBITMAP* bmp)
     {
-        FIBITMAP* bmp;
-        BYTE*     bits;
-        byte*     data;
-        int       channels;
-        long      memsize;
+        ImageData* i = NULL;
+        BYTE*      bits;
+        byte*      data;
+        int        channels;
+        long       memsize;
         
         
-        if (NULL == i)
-            return false;
+        if (NULL == bmp)
+            return NULL;
         
-        if ((bmp = LoadBitmap(path)) == NULL)
-            return false;
+        i = new ImageData();
             
         int width  = (int)FreeImage_GetWidth(bmp);
         int height = (int)FreeImage_GetHeight(bmp);
         int bpp    = (int)FreeImage_GetBPP(bmp);
                          
-        TRACE("LoadImageData() width=%d, height=%d, bpp=%d", width, height, bpp);
+        TRACE("GetOp() width=%d, height=%d, bpp=%d", width, height, bpp);
         
         if (bpp < 24)
         {
+            TRACE("GetOp() converting from bits %d\n", bpp);            
             FIBITMAP* tmp = FreeImage_ConvertTo24Bits(bmp);
             FreeImage_Unload(bmp);
             bmp = tmp;
@@ -82,20 +82,12 @@ namespace imageutils
         }
                                               
         channels = (bpp == 32) ? 4 : 3;
-        
-        memsize = (width * height) * channels;
-        
+                
         bits = FreeImage_GetBits(bmp);
-                                
-        data = new byte[memsize];
-        
-        memcpy(data, bits, memsize);
-        
-        i->Load(data, width, height, channels);
-                            
-        FreeImage_Unload(bmp);
-        
-        return true;
+                                        
+        i->Load(bits, width, height, channels);
+                                    
+        return i;
         
     }
            

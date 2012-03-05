@@ -34,5 +34,6 @@
 #endif
 
 #define radToDeg(r)  (r * 57.2957795)
+#define degToRad(d)  (d / 57.2957795)
 
 #endif

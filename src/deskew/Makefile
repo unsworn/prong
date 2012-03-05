@@ -12,11 +12,15 @@ CXXFLAGS=$(CFLAGS)
 LDFLAGS=-L/opt/local/lib -lfreeimage
 
 OBJECTS=\
+	xml.o \
 	list.o \
 	options.o \
+	JSON.o \
+	job.o \
 	imageutils.o \
 	imagedata.o \
 	analyzer.o \
+	log.o \
 	main.o
 
 $(TARGET): $(OBJECTS)
