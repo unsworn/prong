@@ -11,6 +11,61 @@
 #include "analyzer.h"          
 #include "JSON.h"
 
+
+/***********
+
+Special thanks to:
+
+Slab Bulkhead
+Fridge Largemeat
+Punt Speedchunk
+Butch Deadlift
+Bold Bigflank
+
+Splint Chesthair
+Flint Ironstag
+Bolt VanderHuge
+Thick McRunFast
+Blast Hardcheese
+
+Buff Drinklots
+Trunk Slamchest
+
+Fist Rockbone
+Stump Beefknob
+Smash Lampjaw
+Punch Rockgroin
+Buck Plankchest
+
+Stump Chunkman
+Dirk Hardpec
+Rip Steakface
+Slate Slabrock
+Crud Bonemeal
+
+Rip Slagcheek
+Punch Sideiron
+Gristle McThornBody
+Slake Fistcrunch
+Buff Hardback
+
+Bob Johnson
+Blast Thickneck
+Crunch Buttsteak
+Slab Squatthrust
+Lump Beefbroth
+
+Touch Rustrod
+Reef Blastbody
+Big McLargeHuge
+Smoke Manmuscle
+Pete Punchbeef
+
+Pack Blowfist
+Roll Fizzlebeef
+
+*/
+
 #define PROGNAME "deskew"                    
     
 void

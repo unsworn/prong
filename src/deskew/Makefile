@@ -9,10 +9,9 @@ CFLAGS=-g $(INCLUDE) -DHAVE_FREEIMAGE=1 -DDEBUG=1
 
 CXXFLAGS=$(CFLAGS)
 
-LDFLAGS=-L/opt/local/lib -lfreeimage
+LDFLAGS=-L/opt/local/lib -lfreeimage -lyajl
 
 OBJECTS=\
-	xml.o \
 	list.o \
 	options.o \
 	JSON.o \

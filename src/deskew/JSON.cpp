@@ -4,9 +4,54 @@
 
 #include "log.h"
 #include "JSON.h"
+                           
+#define MODE_READ 0
+#define MODE_WRITE 1
+#define FILE_MAX 1<<16
+                                    
+bool
+JSONReadFile(const char* path, unsigned char** buf)
+{
+    FILE* fp = NULL;
+    long  len = 0;
+    
+    if (buf == NULL)
+        return false;
+        
+    if ((fp = fopen(path, "r")) == NULL)
+        return false;
+       
+    fseek(fp, 0L, SEEK_END);
+    len = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+                
+    if (len > FILE_MAX)
+    {              
+        ERROR("ReadFile(), file size %d > MAX", len);
+        fclose(fp);
+        return false;
+    }
+        
+    if (((*buf) = (unsigned char*) malloc(len + 1)) == NULL )
+    {
+        ERROR("ReadFile(), malloc failed %d", len);
+        fclose(fp);
+        return false;
+    }                      
+
+    fread(buf, 1, len, fp);
+    
+    buf[len] = '\0';
+                   
+    fclose(fp);
+    
+    return true;   
+}   
 
 JSONData::JSONData() :
-        data(NULL)
+        data(NULL),           
+        root(NULL),
+        mode(MODE_WRITE)
 {
     
 }
@@ -14,8 +59,13 @@ JSONData::JSONData() :
 
 JSONData::~JSONData()
 {
-    if (data != NULL)
+    if (mode == MODE_WRITE && data != NULL)
         free(data);
+    if (mode == MODE_READ && root != NULL)
+        yajl_tree_free(root);
+        
+    data = NULL;
+    root = NULL;
 }
 
 void
@@ -23,7 +73,7 @@ JSONData::append(const char* name, const char* value)
 {
     char* tmp;
     
-    if (data == NULL)
+    if (data == NULL || mode != MODE_WRITE)
         return ;
 
     int l0 = strlen(data);
@@ -72,7 +122,10 @@ JSONData::append(const char* name, double value)
 
 void
 JSONData::open()
-{
+{                      
+    if (mode != MODE_WRITE)
+        return ;
+                
     if (data != NULL)
         return ;
 
@@ -87,7 +140,15 @@ JSONData::open()
 
 void
 JSONData::close()
-{
+{                   
+    if (mode == MODE_READ && root != NULL)
+    {
+        yajl_tree_free(root);
+        root = NULL;
+        mode = MODE_WRITE;
+        return ;
+    }                     
+    
     if (data == NULL)
         return ;
     
@@ -99,15 +160,13 @@ JSONData::close()
     
 }
 
-const char*
-JSONData::get()
-{
-    return data;
-}
-
 void
 JSONData::write(const char* f)
-{
+{             
+    
+    if (mode != MODE_WRITE)
+        return ;
+        
     if (data == NULL || f == NULL)
         return ;
 
@@ -119,4 +178,51 @@ JSONData::write(const char* f)
         fflush(fp);
         fclose(fp);
     }
+}
+                 
+bool
+JSONData::read(const char* f)
+{   
+    unsigned char* buf = NULL;
+    char err[1024];
+    
+    if (data != NULL)
+        return false;   
+        
+    mode = MODE_READ;
+    
+    if (root != NULL)
+        return false;
+    
+    if (!JSONReadFile(f, &buf))
+    {
+        TRACE("read() failed to read %s", f);
+        return false;
+    }                
+    
+    if (buf == NULL)
+    {
+        TRACE("read(), no data returned from file operation %d", 0);
+        return false;
+    }                
+    
+    root = yajl_tree_parse((char*)buf, err, sizeof(err));
+    
+    free(buf);
+    
+    if (root == NULL)
+    {
+        ERROR("read(), could not parse data %d", 0);
+        fprintf(stderr, "PARSE ERROR: ");
+        if (strlen(err))
+            fprintf(stderr, " %s", err);
+        else
+            fprintf(stderr, " unknown error");
+        fprintf(stderr, "\n");
+        
+        return false;
+    }                
+    
+    return true;
+    
 }
