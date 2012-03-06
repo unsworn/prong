@@ -7,6 +7,8 @@ class JSONData
 {
 public:
 
+    typedef const char* Path;
+    
     JSONData();
     virtual ~JSONData();
 
@@ -14,6 +16,8 @@ public:
     void append(const char* name, int value);
     void append(const char* name, double value);
                    
+    const char* find(const Path path[]);
+    
     void open();    
     void close();
     

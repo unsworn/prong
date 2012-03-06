@@ -58,8 +58,12 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-m info -u degrees -o /tmp/deskew_jnfo.json example/scanned.jpg"
+            argument = "-o /tmp/deskew_output -j example/job.json example/scanned.jpg"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-m info -u degrees -o /tmp/deskew_jnfo.json example/scanned.jpg"
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>

@@ -123,6 +123,20 @@ JSONData::append(const char* name, double value)
     return this->append(name, tmp);
 }
 
+const char* 
+JSONData::find(const Path path[])
+{
+    int  i = 0;
+    
+    while (path[i] != NULL)
+    {
+        TRACE("Path: %s", path[i++]);
+        
+    }
+    
+    return NULL;
+}
+
 void
 JSONData::open()
 {                      

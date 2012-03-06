@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3C0D81B1150631E600B63380 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C0D81B0150631E600B63380 /* utils.cpp */; };
 		3C719D5E150603240019E40C /* analyzer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C719D48150603240019E40C /* analyzer.cpp */; };
 		3C719D5F150603240019E40C /* imagedata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C719D4D150603240019E40C /* imagedata.cpp */; };
 		3C719D60150603240019E40C /* imageutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C719D50150603240019E40C /* imageutils.cpp */; };
@@ -31,6 +32,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3C0D81AE150631D700B63380 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utils.h; path = src/deskew/utils.h; sourceTree = SOURCE_ROOT; };
+		3C0D81B0150631E600B63380 /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utils.cpp; path = src/deskew/utils.cpp; sourceTree = SOURCE_ROOT; };
 		3C102F731506027400A17244 /* prong */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = prong; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C719D48150603240019E40C /* analyzer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = analyzer.cpp; path = src/deskew/analyzer.cpp; sourceTree = SOURCE_ROOT; };
 		3C719D49150603240019E40C /* analyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = analyzer.h; path = src/deskew/analyzer.h; sourceTree = SOURCE_ROOT; };
@@ -108,6 +111,8 @@
 				3C719D5B150603240019E40C /* options.c */,
 				3C719D5C150603240019E40C /* options.h */,
 				3C719D5D150603240019E40C /* round.h */,
+				3C0D81AE150631D700B63380 /* utils.h */,
+				3C0D81B0150631E600B63380 /* utils.cpp */,
 			);
 			name = deskew;
 			path = prong;
@@ -173,6 +178,7 @@
 				3C719D64150603240019E40C /* log.cpp in Sources */,
 				3C719D65150603240019E40C /* main.cpp in Sources */,
 				3C719D66150603240019E40C /* options.c in Sources */,
+				3C0D81B1150631E600B63380 /* utils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

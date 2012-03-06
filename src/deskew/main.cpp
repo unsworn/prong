@@ -9,6 +9,7 @@
 #include "imageutils.h"
 #include "imagedata.h"
 #include "analyzer.h"          
+#include "utils.h"
 #include "JSON.h"
 
 
@@ -67,7 +68,10 @@ Roll Fizzlebeef
 */
 
 #define PROGNAME "deskew"                    
-    
+
+
+void usage();
+
 void
 usage()
 {
@@ -79,100 +83,11 @@ usage()
     exit(1);
 }                           
 
-void
-calculate_skew_and_exit(const char* path, bool degrees, const char* outp)
-{
-    JSONData   json;
-    FIBITMAP*  bmp;
-    ImageData* i;
-    Analyzer   a;
-
-    double skewAngle = 0;
-    
-    if((bmp = imageutils::LoadBitmap(path)) == NULL)
-    {
-        ERROR("Unable to open file %s", path);
-        exit(1);
-    }
-
-    double scale = 1.0;
-    
-    int i_width  = FreeImage_GetWidth(bmp);
-    int i_height = FreeImage_GetHeight(bmp);
-
-    int width  = i_width;
-    int height = i_height;
-    
-    TRACE("Input is bitmap [%dx%d]", width, height);
-    
-    if (CONFIG_IMAGE_ORIENTATION == CONFIG_PORTRAIT && width > CONFIG_IMAGE_MAX_SIDE)
-    {
-        scale = (CONFIG_IMAGE_MAX_SIDE / (float)width);
-
-        INFO("Scaling %f input (PORTRAIT) to [%dx%d]", scale, CONFIG_IMAGE_MAX_SIDE, (int)(height * scale));
-
-        FIBITMAP* tmp = FreeImage_Rescale(bmp, CONFIG_IMAGE_MAX_SIDE, height * scale, FILTER_BILINEAR);
-
-        imageutils::FreeBitmap(bmp);
-        
-        bmp = tmp;
-    }
-    else if (CONFIG_IMAGE_ORIENTATION == CONFIG_LANDSCAPE && height > CONFIG_IMAGE_MAX_SIDE)
-    {
-        scale = (CONFIG_IMAGE_MAX_SIDE / (float)height);
-
-        INFO("Scaling %f input (LANDSCAPE) to [%dx%d]", scale, (int)(width * scale), CONFIG_IMAGE_MAX_SIDE);
-
-        FIBITMAP* tmp = FreeImage_Rescale(bmp, width * scale, CONFIG_IMAGE_MAX_SIDE, FILTER_BILINEAR);
-
-        imageutils::FreeBitmap(bmp);
-
-        bmp = tmp;        
-    }
-
-    width = FreeImage_GetWidth(bmp);
-    height = FreeImage_GetHeight(bmp);
-
-    TRACE("Finding skew angle: [%dx%d]", width, height);
-    
-    if ((i = imageutils::GetOp(bmp)) != NULL)
-    {
-        if (!a.GetSkewAngle(false, *i, skewAngle, 0))
-            INFO("GetSkewAngle() bmp == %s failed", path);
-
-        delete i;
-    }
-    else
-        INFO("GetOp() bmp == %s failed", path);
-
-    imageutils::FreeBitmap(bmp);
-    
-    if (degrees)
-        skewAngle = radToDeg(skewAngle);
-
-    if (outp != NULL)
-    {
-        json.open();
-        json.append("width", i_width);
-        json.append("height", i_height);
-        json.append("skew", skewAngle);
-        json.close();
-        json.write(outp);
-    }
-    else
-    {        
-        printf("%f\n", skewAngle);
-    }
-
-    exit(0);
-    
-}
-
 
 enum {
-    MODE_INFO   = 0x01,
-    MODE_ROTATE = 0x02,
-    MODE_CROP   = 0x04
+    MODE_INFO    = 0x01,
+    MODE_ROTATE  = 0x02,
+    MODE_PROCESS = 0x04
 };
 
 
@@ -189,6 +104,7 @@ int main(int argc, char** argv)
     const char*   jobp   = NULL;
     double        angle   = 0;
     
+    
     if (!options_parse(argc, argv, NULL, &opt))      
     {
         ERROR("Unable to parse options argc=%d\n", argc);
@@ -203,13 +119,23 @@ int main(int argc, char** argv)
     }
 
     if ((o = options_find("o", &opt)) != NULL)
+    {
         outp = options_strval(o);
+        TRACE("OUTPUT: %s", outp);
+    }
 
     if ((o = options_find("a", &opt)) != NULL)
+    {
         angle = atof(options_strval(o));
+        TRACE("ANGLE: %f", angle);
+    }
 
     if ((o = options_find("j", &opt)) != NULL)
+    {
         jobp = options_strval(o);
+        mode = MODE_PROCESS;
+        TRACE("JOBFILE: %s", jobp);
+    }
     
     if ((o = options_find("m", &opt)) != NULL)
     {
@@ -217,6 +143,8 @@ int main(int argc, char** argv)
 
         tmp = options_strval(o);
 
+        TRACE("MODE: %s", tmp);
+        
         if (tmp != NULL)
         {
             if (strstr(tmp, "info") != NULL)
@@ -224,7 +152,7 @@ int main(int argc, char** argv)
             if (strstr(tmp, "rotate") != NULL)
                 mode |= MODE_ROTATE;
             if (strstr(tmp, "crop") != NULL)
-                mode |= MODE_CROP;
+                mode |= MODE_PROCESS;
         }
 
     }
@@ -235,8 +163,16 @@ int main(int argc, char** argv)
         usage();
     
 
+    if (jobp != NULL)
+    {
+        ERROR("no operation config file specified %d", 0);
+        return 1;
+    }
+
+    
     if ((mode & MODE_INFO))
         calculate_skew_and_exit(inputFile, degrees, outp);
+
 
     if ((bmp = imageutils::LoadBitmap(inputFile)) == NULL)
     {
@@ -270,12 +206,6 @@ int main(int argc, char** argv)
             return 0;
         }
     }
-
-    if (jobp == NULL)
-    {
-        ERROR("no operation config file specified %d", 0);
-        return 1;
-    }
-
+    
     return 0;
 }
