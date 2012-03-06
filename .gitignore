@@ -1,0 +1,8 @@
+UserInterfaceState.xcuserstate
+WorkspaceSettings.xcsettings
+
+*.xcbkptlist
+*.xcuserstate
+*.tag
+docs
+.DS_Store

@@ -8,7 +8,10 @@
 #define MODE_READ 0
 #define MODE_WRITE 1
 #define FILE_MAX 1<<16
-                                    
+
+bool
+JSONReadFile(const char* path, unsigned char** buf);
+
 bool
 JSONReadFile(const char* path, unsigned char** buf)
 {
@@ -76,9 +79,9 @@ JSONData::append(const char* name, const char* value)
     if (data == NULL || mode != MODE_WRITE)
         return ;
 
-    int l0 = strlen(data);
-    int l1 = strlen(name);
-    int l2 = strlen(value);
+    int l0 = (int)strlen(data);
+    int l1 = (int)strlen(name);
+    int l2 = (int)strlen(value);
     int l3 = 2;
 
     TRACE("append() %d realloc(%d) (%s %s)", l0, l0 + l1 + l2 + l3, name, value);
@@ -152,7 +155,7 @@ JSONData::close()
     if (data == NULL)
         return ;
     
-    int len = strlen(data);    
+    int len = (int)strlen(data);    
 
     data = (char*) realloc(data, len + 3);
 
