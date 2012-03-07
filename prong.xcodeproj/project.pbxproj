@@ -57,6 +57,7 @@
 		3C719D5B150603240019E40C /* options.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = options.c; path = src/deskew/options.c; sourceTree = SOURCE_ROOT; };
 		3C719D5C150603240019E40C /* options.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = options.h; path = src/deskew/options.h; sourceTree = SOURCE_ROOT; };
 		3C719D5D150603240019E40C /* round.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = round.h; path = src/deskew/round.h; sourceTree = SOURCE_ROOT; };
+		3C94BF8815078EEF000B6C19 /* sample.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = sample.json; path = example/sample.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +74,7 @@
 		3C102F681506027400A17244 = {
 			isa = PBXGroup;
 			children = (
+				3CE8513415075FA00055A1D8 /* example */,
 				3C102F761506027400A17244 /* deskew */,
 				3C102F741506027400A17244 /* Products */,
 			);
@@ -116,6 +118,14 @@
 			);
 			name = deskew;
 			path = prong;
+			sourceTree = "<group>";
+		};
+		3CE8513415075FA00055A1D8 /* example */ = {
+			isa = PBXGroup;
+			children = (
+				3C94BF8815078EEF000B6C19 /* sample.json */,
+			);
+			name = example;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
