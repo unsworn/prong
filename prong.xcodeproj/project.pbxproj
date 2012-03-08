@@ -35,6 +35,7 @@
 		3C0D81AE150631D700B63380 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utils.h; path = src/deskew/utils.h; sourceTree = SOURCE_ROOT; };
 		3C0D81B0150631E600B63380 /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utils.cpp; path = src/deskew/utils.cpp; sourceTree = SOURCE_ROOT; };
 		3C102F731506027400A17244 /* prong */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = prong; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C3427BF1508A1880050A874 /* ExportTemplate.js */ = {isa = PBXFileReference; name = ExportTemplate.js; path = src/ExportTemplate.js; sourceTree = "<group>"; };
 		3C719D48150603240019E40C /* analyzer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = analyzer.cpp; path = src/deskew/analyzer.cpp; sourceTree = SOURCE_ROOT; };
 		3C719D49150603240019E40C /* analyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = analyzer.h; path = src/deskew/analyzer.h; sourceTree = SOURCE_ROOT; };
 		3C719D4A150603240019E40C /* canny_edge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = canny_edge.h; path = src/deskew/canny_edge.h; sourceTree = SOURCE_ROOT; };
@@ -74,6 +75,7 @@
 		3C102F681506027400A17244 = {
 			isa = PBXGroup;
 			children = (
+				3C3427BD1508A1760050A874 /* scripts */,
 				3CE8513415075FA00055A1D8 /* example */,
 				3C102F761506027400A17244 /* deskew */,
 				3C102F741506027400A17244 /* Products */,
@@ -118,6 +120,14 @@
 			);
 			name = deskew;
 			path = prong;
+			sourceTree = "<group>";
+		};
+		3C3427BD1508A1760050A874 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				3C3427BF1508A1880050A874 /* ExportTemplate.js */,
+			);
+			name = scripts;
 			sourceTree = "<group>";
 		};
 		3CE8513415075FA00055A1D8 /* example */ = {
