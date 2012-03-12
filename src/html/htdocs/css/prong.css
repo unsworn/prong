@@ -1,0 +1,17 @@
+body {
+    background: rgb(0, 0, 0);
+}
+
+.login_dialog
+{
+    background: rgb(40, 40, 40);
+    width: 200px;
+    height: 120px;    
+    position: absolute;
+    left: 45%;
+}
+
+.login_field
+{
+    align: right;
+}
