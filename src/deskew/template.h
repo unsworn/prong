@@ -1,0 +1,107 @@
+#ifndef template_H_
+#define template_H_
+
+#include "list.h"
+#include "JSON.h"
+                
+enum 
+{            
+    GAME_TYPE_UNKNOWN,
+    GAME_TYPE_GRAPHIC,
+    GAME_TYPE_PROPERTY
+};
+
+enum
+{                    
+    GAME_CLASS_NONE,
+    GAME_CLASS_PLAYER,
+    GAME_CLASS_BACKGROUND,
+    GAME_CLASS_ENTITY,
+    GAME_CLASS_STATIC
+};
+                        
+/**
+ * Point in 2d space
+ */
+class Point
+{         
+public:    
+    float x;
+    float y;
+};
+   
+/**
+ * Dimension in 2d space
+ */
+class Size
+{         
+public:    
+    float width;
+    float height;
+};
+
+/**
+ * area in 2d space
+ */
+class Rect
+{
+public:    
+    Point origin;
+    Size  size;
+};
+                                       
+/**
+ * game box
+ */        
+class Box
+{
+public:
+    Box();
+    virtual ~Box();
+    
+    Box*  next;  
+    Box*  owner;                          
+    char* name;       
+    char* parent;
+    int   type;
+    int   clazz;      
+    Rect  abs;
+    Rect  rel;      
+    char* path;
+    bool  enabled;
+};
+   
+        
+/**
+ * game template
+ */           
+class Template
+{
+public:
+    Template();
+    virtual ~Template();      
+    
+    bool   read(const char* path);
+                                
+    void   setSkewAngle(double angle) { skew = angle; }
+    
+    double getSkewAngle() { return skew; }
+    
+    Box*   getFirstBox()  { return box; }
+                    
+    Box*   getBox(const char* name, int type=-1);
+    
+    Rect*  getCrop()      { return &crop; }
+
+protected:
+    void   fromObject(void* ptr);
+        
+private:
+    Box*   box;    
+    Rect   crop;
+    double skew;
+    
+    
+};                      
+
+#endif
