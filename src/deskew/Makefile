@@ -11,19 +11,16 @@ CXXFLAGS=$(CFLAGS)
 
 LDFLAGS=-L/opt/local/lib -lfreeimage -lyajl
 
-OBJECTS=\
-	list.o \
-	options.o \
-	JSON.o \
-	job.o \
-	imageutils.o \
-	imagedata.o \
-	analyzer.o \
-	log.o \
-	main.o
+C_SOURCE=$(wildcard *.c)
+CPP_SOURCE=$(wildcard *.cpp)
+
+OBJECTS=$(C_SOURCE:.c=.o) $(CPP_SOURCE:.cpp=.o)
 
 $(TARGET): $(OBJECTS)
 	$(CXX) -o $@ $(LDFLAGS) $(OBJECTS)
+
+test:
+	echo $(SOURCES)
 
 clean:
 	@rm -rf $(OBJECTS) $(TARGET)

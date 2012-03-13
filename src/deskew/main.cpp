@@ -77,7 +77,12 @@ usage()
 {
     fprintf(stderr, "%s version 1.0\n", PROGNAME);
     fprintf(stderr, "Syntax:\n");
-    fprintf(stderr, "%s <options> <image file>\n", PROGNAME);
+    fprintf(stderr, "%s <options> <image file>\n", PROGNAME);          
+    fprintf(stderr, "\t-u             (units, degrees|radians)\n");
+    fprintf(stderr, "\t-o             output path / file\n");
+    fprintf(stderr, "\t-a             angle, if mode = rotate\n");
+    fprintf(stderr, "\t-t             template file\n");
+    fprintf(stderr, "\t-m             mode, info|rotate|crop\n");
     fprintf(stderr, "\t-v             (be verbose)\n");
     
     exit(1);
@@ -101,7 +106,7 @@ int main(int argc, char** argv)
     const char*   tmp;
     int           mode    = MODE_INFO;
     const char*   outp    = NULL;
-    const char*   jobp   = NULL;
+    const char*   tmlp    = NULL;
     double        angle   = 0;
     
     
@@ -130,11 +135,11 @@ int main(int argc, char** argv)
         TRACE("ANGLE: %f", angle);
     }
 
-    if ((o = options_find("j", &opt)) != NULL)
+    if ((o = options_find("t", &opt)) != NULL)
     {
-        jobp = options_strval(o);
+        tmlp = options_strval(o);
         mode = MODE_PROCESS;
-        TRACE("JOBFILE: %s", jobp);
+        TRACE("FILE: %s", tmlp);
     }
     
     if ((o = options_find("m", &opt)) != NULL)
@@ -163,10 +168,23 @@ int main(int argc, char** argv)
         usage();
     
 
-    if (jobp != NULL)
+    if (tmlp != NULL)
     {
-        ERROR("no operation config file specified %d", 0);
-        return 1;
+        Template t;
+        
+        if (!t.read(tmlp))
+        {
+            ERROR("Unable to read %s", tmlp);
+            return 1;
+        }
+                          
+        if (degrees)
+            angle = degToRad(angle);
+        
+        t.setSkewAngle(angle);
+        
+        crop_and_exit(inputFile, &t, outp);
+        
     }
 
     
@@ -199,12 +217,13 @@ int main(int argc, char** argv)
 
         bmp = rmp;
 
-        if (outp != NULL && jobp == NULL)
+        if (outp != NULL && tmlp == NULL)
         {
             TRACE("Writing rotated bitmap to: %s", outp);
             imageutils::SaveBitmapToFile(bmp, outp);
             return 0;
-        }
+        }                   
+                
     }
     
     return 0;

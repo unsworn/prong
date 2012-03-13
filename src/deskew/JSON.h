@@ -21,7 +21,8 @@ public:
     void open();    
     void close();
     
-        
+    yajl_val get() { return root; }
+    
     void write(const char* path);
     bool read(const char* path);
     

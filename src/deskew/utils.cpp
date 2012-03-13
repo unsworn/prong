@@ -6,7 +6,8 @@
 //  Copyright (c) 2012 assertfail.org. All rights reserved.
 //
 
-#include <stdio.h>
+#include <stdio.h>                
+#include <string.h>
 #include <stdlib.h>
 
 #include "log.h"
@@ -19,6 +20,12 @@
 #include "JSON.h"
 
 #include "utils.h"
+                  
+bool
+checkBoolPixels(Box* box, FIBITMAP* bmp)
+{
+    return false;
+}                
 
 void
 calculate_skew_and_exit(const char* path, bool degrees, const char* outp)
@@ -107,4 +114,99 @@ calculate_skew_and_exit(const char* path, bool degrees, const char* outp)
     
     exit(0);
     
+}   
+
+void
+crop_and_exit(const char* inputFile, Template* t, const char* outPath)
+{               
+    FIBITMAP*  bmp;
+    ImageData* i;
+              
+    char path[2048];
+    
+    double skewAngle = t->getSkewAngle();
+    
+    if((bmp = imageutils::LoadBitmap(inputFile)) == NULL)
+    {
+        ERROR("Unable to open file %s", inputFile);
+        exit(1);
+    }
+    
+    double scale = 1.0;
+        
+    int width  = FreeImage_GetWidth(bmp);
+    int height = FreeImage_GetHeight(bmp);
+                   
+    TRACE("Rotating input: -%f", skewAngle);
+    
+    FIBITMAP* rmp;
+        
+    if (skewAngle != 0)
+    {
+        if ((rmp = imageutils::GetRotatedBitmap(bmp, -skewAngle, NULL)) == NULL)
+        {
+            ERROR("Rotate %f failed on input", skewAngle);
+            exit(1);
+        }      
+        sprintf(path, "%s/rotated.png", outPath);     
+
+        imageutils::SaveBitmapToFile(rmp, path);
+
+        imageutils::FreeBitmap(bmp);
+
+        bmp = rmp;
+        
+        width  = FreeImage_GetWidth(bmp);
+        height = FreeImage_GetHeight(bmp);
+        
+    }
+    
+    
+                                 
+    Box* ptr = t->getFirstBox();
+                     
+    while (ptr != NULL)
+    {                      
+        
+        // 841.8896484375, 1190.5498046875
+          /*              
+        if (ptr->type == GAME_TYPE_PROPERTY)
+        {
+            if (ptr->parent != NULL && ptr->owner == NULL)
+                ptr->owner = t->getBox(ptr->parent, GAME_TYPE_GRAPHIC);                
+        
+            ptr->enabled = checkBoolPixels(ptr, bmp);
+        }
+        else if (ptr->type == GAME_TYPE_GRAPHIC)
+        */
+        {
+            Rect crop;
+            crop.origin.x    = ptr->rel.origin.x * width;
+            crop.origin.y    = ptr->rel.origin.y * height;            
+            crop.size.width  = ptr->rel.size.width * width;
+            crop.size.height = ptr->rel.size.height * height;            
+            
+            
+            
+            sprintf(path, "%s/%s.png", outPath, ptr->name);
+                        
+            TRACE("crop[%f, %f, %f, %f] %s", crop.origin.x, crop.origin.y, crop.size.width, crop.size.height, path);
+            
+            FIBITMAP* copy = FreeImage_Copy(
+                bmp,
+                (int)(crop.origin.x),
+                (int)(crop.origin.y),
+                (int)(crop.origin.x + crop.size.width),
+                (int)(crop.origin.y + crop.size.height));
+                                                                   
+            imageutils::SaveBitmapToFile(copy, path);
+                                             
+            imageutils::FreeBitmap(copy);
+            
+            ptr->path = strdup(path);
+        }                                                              
+                        
+        ptr = ptr->next;
+    }
+    exit(0);
 }

@@ -42,9 +42,11 @@ JSONReadFile(const char* path, unsigned char** buf)
         return false;
     }                      
 
-    fread(buf, 1, len, fp);
+    fread((*buf), 1, len, fp);
+             
+    TRACE("Read %d bytes", len);
     
-    buf[len] = '\0';
+    (*buf)[len] = '\0';
                    
     fclose(fp);
     
