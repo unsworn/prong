@@ -90,8 +90,15 @@ public:
     Box*   getFirstBox()  { return box; }
                     
     Box*   getBox(const char* name, int type=-1);
+
+    void   setCropBox(Rect &r) {
+        crop.origin.x    = r.origin.x;
+        crop.origin.y    = r.origin.y;
+        crop.size.width  = r.size.width;
+        crop.size.height = r.size.height;
+    }
     
-    Rect*  getCrop()      { return &crop; }
+    Rect*  getCropBox()      { return &crop; }
 
 protected:
     void   fromObject(void* ptr);

@@ -182,6 +182,9 @@ int main(int argc, char** argv)
             angle = degToRad(angle);
         
         t.setSkewAngle(angle);
+
+        if (doCrop)
+            t.setCropBox(cropBox);
         
         crop_and_exit(inputFile, &t, outp);
         
