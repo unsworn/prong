@@ -10,6 +10,7 @@
 #include "imagedata.h"
 #include "analyzer.h"          
 #include "utils.h"
+#include "template.h"
 #include "JSON.h"
 
 
@@ -84,6 +85,7 @@ usage()
     fprintf(stderr, "\t-t             template file\n");
     fprintf(stderr, "\t-m             mode, info|rotate|crop\n");
     fprintf(stderr, "\t-v             (be verbose)\n");
+    fprintf(stderr, "\t-c             crop box XxY+W+H\n");
     
     exit(1);
 }                           
@@ -108,7 +110,8 @@ int main(int argc, char** argv)
     const char*   outp    = NULL;
     const char*   tmlp    = NULL;
     double        angle   = 0;
-    
+    bool          doCrop  = false;
+    Rect          cropBox;
     
     if (!options_parse(argc, argv, NULL, &opt))      
     {
@@ -140,6 +143,14 @@ int main(int argc, char** argv)
         tmlp = options_strval(o);
         mode = MODE_PROCESS;
         TRACE("FILE: %s", tmlp);
+    }
+
+    if ((o = options_find("c", &opt)) != NULL)
+    {
+        const char* tmp = options_strval(o);
+        get_crop_box(tmp, cropBox);
+        doCrop = true;
+
     }
     
     if ((o = options_find("m", &opt)) != NULL)

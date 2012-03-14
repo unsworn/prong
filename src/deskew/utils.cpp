@@ -210,3 +210,28 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
     }
     exit(0);
 }
+
+//------------------------------------------------------------------------------------------------------------
+
+void
+get_crop_box(const char* str, Rect &r)
+{
+    float x=0,y=0,w=0,h=0;
+    
+    if (str == NULL)
+    {
+        ERROR("get_crop_box() str == %d", 0);
+        return ;
+    }
+
+    if (sscanf(str, "%fx%f+%f+%f", &x, &y, &w, &h) != 4)
+    {
+        TRACE("get_crop_box() not all values where specified XxY+W+H %d", 0);
+    }
+
+    r.origin.x = x;
+    r.origin.y = y;
+    r.size.width = w;
+    r.size.height = h;
+    
+}
