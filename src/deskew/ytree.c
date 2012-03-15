@@ -295,8 +295,13 @@ static int context_add_value (context_t *ctx, yajl_val v)
     }
 }
 
+#if HAVE_YAJL2
+static int handle_string (void *ctx,
+                          const unsigned char *string, size_t string_length)
+#else
 static int handle_string (void *ctx,
                           const unsigned char *string, unsigned int string_length)
+#endif
 {
     yajl_val v;
 
@@ -316,7 +321,11 @@ static int handle_string (void *ctx,
     return ((context_add_value (ctx, v) == 0) ? STATUS_CONTINUE : STATUS_ABORT);
 }
 
+#if HAVE_YAJL2
+static int handle_number (void *ctx, const char *string, size_t string_length)
+#else
 static int handle_number (void *ctx, const char *string, unsigned int string_length)
+#endif
 {
     yajl_val v;
     char *endptr;
@@ -448,7 +457,6 @@ yajl_val yajl_tree_parse (const char *input,
 
     yajl_handle handle;
     yajl_status status;
-    yajl_parser_config cfg = {1, 1};
     
 	context_t ctx = { NULL, NULL, NULL, 0 };
 
@@ -458,14 +466,22 @@ yajl_val yajl_tree_parse (const char *input,
     if (error_buffer != NULL)
         memset (error_buffer, 0, error_buffer_size);
 
+#if HAVE_YAJL2
+    handle = yajl_alloc (&callbacks, NULL, &ctx);
+    yajl_config(handle, yajl_allow_comments, 1);
+#else
+    yajl_parser_config cfg = {1, 1};
     handle = yajl_alloc (&callbacks, &cfg, NULL, &ctx);
-
-    //yajl_config(handle, yajl_allow_comments, 1);
-
+#endif
+    
     status = yajl_parse(handle,
                         (unsigned char *) input,
                         strlen (input));
+#if HAVE_YAJL2
+    status = yajl_complete_parse(handle);
+#else    
     status = yajl_parse_complete (handle);
+#endif    
     if (status != yajl_status_ok) {
         if (error_buffer != NULL && error_buffer_size > 0) {
             snprintf(
