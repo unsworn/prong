@@ -21,7 +21,7 @@ enum
 };
                         
 /**
- * Point in 2d space
+ * Point
  */
 class Point
 {         
@@ -31,7 +31,7 @@ public:
 };
    
 /**
- * Dimension in 2d space
+ * Dimension
  */
 class Size
 {         
@@ -41,7 +41,7 @@ public:
 };
 
 /**
- * area in 2d space
+ * Rectangle
  */
 class Rect
 {
@@ -51,7 +51,7 @@ public:
 };
                                        
 /**
- * game box
+ * Template Box
  */        
 class Box
 {
@@ -73,7 +73,7 @@ public:
    
         
 /**
- * game template
+ * Game Template
  */           
 class Template
 {
