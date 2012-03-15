@@ -2,6 +2,7 @@
 #define imageutils_H_
 
 #include "imagetypes.h"
+#include "template.h"
 
 #include <FreeImage.h>
 
@@ -77,6 +78,10 @@ namespace imageutils
     unsigned int GetDataSize(unsigned int w, unsigned int h, unsigned int bitdepth);
 
     FIBITMAP* RotateBitmap(FIBITMAP* bmp, double angle, const void* ptr = NULL);
+
+    FIBITMAP* GetScaledBitmap(FIBITMAP* bmp, Rect &geometry);
+
+    FIBITMAP* GetCroppedBitmap(FIBITMAP* bmp, Rect &geometry);
     
 }
                                                                                                        

@@ -1,9 +1,6 @@
 #ifndef template_H_
 #define template_H_
-
-#include "list.h"
-#include "JSON.h"
-                
+              
 enum 
 {            
     GAME_TYPE_UNKNOWN,

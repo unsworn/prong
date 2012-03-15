@@ -424,4 +424,24 @@ namespace imageutils
 #endif
         
     }
+
+
+    FIBITMAP* GetScaledBitmap(FIBITMAP* bmp, Rect &geometry)
+    {
+        return FreeImage_Rescale(bmp, (int)geometry.size.width, (int)geometry.size.height, FILTER_BILINEAR);
+    }
+    
+
+    FIBITMAP* GetCroppedBitmap(FIBITMAP* bmp, Rect &geometry)
+    {
+        return FreeImage_Copy(
+                bmp,
+                (int)(geometry.origin.x),
+                (int)(geometry.origin.y),
+                (int)(geometry.origin.x + geometry.size.width),
+                (int)(geometry.origin.y + geometry.size.height));
+
+    }
+
+
 }

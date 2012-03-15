@@ -82,11 +82,14 @@ usage()
     fprintf(stderr, "%s <options> <image file>\n", PROGNAME);          
     fprintf(stderr, "\t-u             (units, degrees|radians)\n");
     fprintf(stderr, "\t-o             output path / file\n");
-    fprintf(stderr, "\t-a             angle, if mode = rotate\n");
-    fprintf(stderr, "\t-t             template file\n");
-    fprintf(stderr, "\t-m             mode, info|rotate|crop\n");
+    fprintf(stderr, "\t-a             angle, with -r \n");
+    fprintf(stderr, "\t-j             use job file\n");
+    fprintf(stderr, "\t-r             rotate\n");
+    fprintf(stderr, "\t-c             crop\n");
+    fprintf(stderr, "\t-s             scale\n");
+    fprintf(stderr, "\t-i             info\n");    
     fprintf(stderr, "\t-v             (be verbose)\n");
-    fprintf(stderr, "\t-c             crop box XxY+W+H\n");
+    fprintf(stderr, "\t-g             geometry XxY+W+H with -c or -s\n");
     
     exit(1);
 }                           
@@ -95,7 +98,9 @@ usage()
 enum {
     MODE_INFO    = 0x01,
     MODE_ROTATE  = 0x02,
-    MODE_PROCESS = 0x04
+    MODE_SCALE   = 0x04,
+    MODE_CROP    = 0x08,
+    MODE_PROCESS = 0x10
 };
 
 
@@ -107,12 +112,12 @@ int main(int argc, char** argv)
     Option        o;
     bool          degrees = false;
     const char*   tmp;
-    int           mode    = MODE_INFO;
+    int           mode    = 0;
     const char*   outp    = NULL;
     const char*   tmlp    = NULL;
     double        angle   = 0;
-    bool          doCrop  = false;
-    Rect          cropBox;
+    bool          gset    = false;
+    Rect          geometry;
 
     
     if (!options_parse(argc, argv, NULL, &opt))      
@@ -140,40 +145,41 @@ int main(int argc, char** argv)
         TRACE("ANGLE: %f", angle);
     }
 
-    if ((o = options_find("t", &opt)) != NULL)
+    if ((o = options_find("g", &opt)) != NULL)
+    {
+        const char* tmp = options_strval(o);
+        get_crop_box(tmp, geometry);        
+        gset = true;
+        TRACE("geometry [%f, %f, %f, %f]", geometry.origin.x, geometry.origin.y, geometry.size.width, geometry.size.height);
+    }
+
+    if ((o = options_find("i", &opt)) != NULL)
+    {
+        mode |= MODE_INFO;
+    }
+    
+    if ((o = options_find("r", &opt)) != NULL)
+    {
+        mode |= MODE_ROTATE;
+    }
+
+    if ((o = options_find("c", &opt)) != NULL)
+    {
+        mode |= MODE_CROP;
+    }
+
+    if ((o = options_find("s", &opt)) != NULL)
+    {
+        mode |= MODE_SCALE;
+    }
+
+    if ((o = options_find("j", &opt)) != NULL)
     {
         tmlp = options_strval(o);
         mode = MODE_PROCESS;
         TRACE("FILE: %s", tmlp);
     }
 
-    if ((o = options_find("c", &opt)) != NULL)
-    {
-        const char* tmp = options_strval(o);
-        get_crop_box(tmp, cropBox);
-        doCrop = true;
-
-    }
-    
-    if ((o = options_find("m", &opt)) != NULL)
-    {
-        mode = 0x0;
-
-        tmp = options_strval(o);
-
-        TRACE("MODE: %s", tmp);
-        
-        if (tmp != NULL)
-        {
-            if (strstr(tmp, "info") != NULL)
-                mode |= MODE_INFO;
-            if (strstr(tmp, "rotate") != NULL)
-                mode |= MODE_ROTATE;
-            if (strstr(tmp, "crop") != NULL)
-                mode |= MODE_PROCESS;
-        }
-
-    }
     
     if ((o = options_find("arg0", &opt)) != NULL)
         inputFile = options_strval(o);
@@ -181,7 +187,7 @@ int main(int argc, char** argv)
         usage();
     
 
-    if (tmlp != NULL)
+    if (mode == MODE_PROCESS && tmlp != NULL)
     {
         Template t;
         
@@ -196,24 +202,67 @@ int main(int argc, char** argv)
         
         t.setSkewAngle(angle);
 
-        if (doCrop)
-            t.setCropBox(cropBox);
+        if (gset)
+            t.setCropBox(geometry);
         
         crop_and_exit(inputFile, &t, outp);
+
+        return 0;
         
     }
 
     
     if ((mode & MODE_INFO))
+    {
+        TRACE("Gathering info %d\n", mode);
         calculate_skew_and_exit(inputFile, degrees, outp);
+    }
 
-
+    TRACE("Work %d", mode);
+    
     if ((bmp = imageutils::LoadBitmap(inputFile)) == NULL)
     {
         ERROR("Unable to read file: %s", inputFile);
         return 1;
     }
 
+    if ((mode & MODE_CROP) && gset)
+    {
+        TRACE("Cropping.. %d\n", mode);
+        
+        FIBITMAP* rmp;
+
+        if ((rmp = imageutils::GetCroppedBitmap(bmp, geometry)) == NULL)
+        {
+            ERROR("Crop failed %d", 0);
+            return 1;
+        }
+
+        imageutils::FreeBitmap(bmp);
+
+        bmp = rmp;
+        
+    }
+
+    if ((mode & MODE_SCALE) && gset)
+    {
+        TRACE("Scaling.. %d\n", mode);
+        
+        FIBITMAP* rmp;
+
+        if ((rmp = imageutils::GetScaledBitmap(bmp, geometry)) == NULL)
+        {
+            ERROR("Unable to scale %d", 0);
+            return 1;
+        }
+
+        imageutils::FreeBitmap(bmp);
+
+        bmp = rmp;
+        
+    }
+          
+    
     if ((mode & MODE_ROTATE) && angle != 0.0)
     {
         if (degrees)
@@ -233,14 +282,14 @@ int main(int argc, char** argv)
 
         bmp = rmp;
 
-        if (outp != NULL && tmlp == NULL)
-        {
-            TRACE("Writing rotated bitmap to: %s", outp);
-            imageutils::SaveBitmapToFile(bmp, outp);
-            return 0;
-        }                   
-                
     }
-    
+
+    if (outp != NULL && tmlp == NULL)
+    {
+        imageutils::SaveBitmapToFile(bmp, outp);
+        return 0;
+    }                   
+                
+
     return 0;
 }
