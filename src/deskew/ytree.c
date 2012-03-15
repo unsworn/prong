@@ -448,6 +448,8 @@ yajl_val yajl_tree_parse (const char *input,
 
     yajl_handle handle;
     yajl_status status;
+    yajl_parser_config cfg = {1, 1};
+    
 	context_t ctx = { NULL, NULL, NULL, 0 };
 
 	ctx.errbuf = error_buffer;
@@ -456,8 +458,9 @@ yajl_val yajl_tree_parse (const char *input,
     if (error_buffer != NULL)
         memset (error_buffer, 0, error_buffer_size);
 
-    handle = yajl_alloc (&callbacks, NULL, &ctx);
-    yajl_config(handle, yajl_allow_comments, 1);
+    handle = yajl_alloc (&callbacks, &cfg, NULL, &ctx);
+
+    //yajl_config(handle, yajl_allow_comments, 1);
 
     status = yajl_parse(handle,
                         (unsigned char *) input,
