@@ -103,9 +103,9 @@ JSONData::append(const char* name, const char* value)
     free(tmp);
     
     if (l0 == 1)
-        sprintf(data + l0, "%s:%s", name, value);
+        sprintf(data + l0, "\"%s\":%s", name, value);
     else
-        sprintf(data + l0, ",%s:%s", name, value);
+        sprintf(data + l0, ",\"%s\":%s", name, value);
     
 }
 
@@ -175,7 +175,7 @@ JSONData::close()
 
     data = (char*) realloc(data, len + 3);
 
-    sprintf(data + len , "};");
+    sprintf(data + len , "}");
     
 }
 
