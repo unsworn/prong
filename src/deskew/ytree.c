@@ -296,7 +296,7 @@ static int context_add_value (context_t *ctx, yajl_val v)
 }
 
 static int handle_string (void *ctx,
-                          const unsigned char *string, size_t string_length)
+                          const unsigned char *string, unsigned int string_length)
 {
     yajl_val v;
 
@@ -316,7 +316,7 @@ static int handle_string (void *ctx,
     return ((context_add_value (ctx, v) == 0) ? STATUS_CONTINUE : STATUS_ABORT);
 }
 
-static int handle_number (void *ctx, const char *string, size_t string_length)
+static int handle_number (void *ctx, const char *string, unsigned int string_length)
 {
     yajl_val v;
     char *endptr;
