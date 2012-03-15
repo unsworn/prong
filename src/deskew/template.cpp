@@ -2,7 +2,8 @@
 #include <string.h>
 #include <stdlib.h> 
 
-#include <yajl/yajl_common.h>
+#include "list.h"
+#include "JSON.h"
               
 #include "log.h"
 #include "template.h"

@@ -1,7 +1,7 @@
 #ifndef JSON_H_
 #define JSON_H_
 
-#include <yajl/yajl_tree.h>
+#include "ytree.h"
                  
 class JSONData
 {
