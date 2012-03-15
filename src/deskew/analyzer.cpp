@@ -554,7 +554,7 @@ Analyzer::GetImageSkewAngle(ImageData& image, int slices, EdgeType edge_type, in
     
     //double deg_theta = (theta * 180) / M_PI;
     
-    delete arrSlopes;   
+    // delete arrSlopes;   
     
     if(pos_count > neg_count)
     {
