@@ -337,7 +337,10 @@ Analyzer::GetImageSkewAngle(ImageData& image, int slices, EdgeType edge_type, in
 
     int index = 0;
 
-    SlopeInfo* arrSlopes = new SlopeInfo[slices];
+    //SlopeInfo* arrSlopes = new SlopeInfo[slices];
+
+    SlopeInfo* arrSlopes = (SlopeInfo*)malloc(slices * sizeof(SlopeInfo));
+    
     int arrIndex = 0;
 
     byte clrBlack = 0;
