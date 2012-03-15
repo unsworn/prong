@@ -77,6 +77,7 @@ void
 usage()
 {
     fprintf(stderr, "%s version 1.0\n", PROGNAME);
+    fprintf(stderr, "utils version %d\n", imageutils::version());
     fprintf(stderr, "Syntax:\n");
     fprintf(stderr, "%s <options> <image file>\n", PROGNAME);          
     fprintf(stderr, "\t-u             (units, degrees|radians)\n");
@@ -112,6 +113,7 @@ int main(int argc, char** argv)
     double        angle   = 0;
     bool          doCrop  = false;
     Rect          cropBox;
+
     
     if (!options_parse(argc, argv, NULL, &opt))      
     {

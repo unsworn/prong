@@ -9,7 +9,33 @@
 #include "imagedata.h"
 
 namespace imageutils
-{   
+{
+    static int gImageVersion = 0;
+
+    int version()
+    {
+        if (gImageVersion == 0)
+        {
+            int v0=0, v1=0, v2=0;
+            const char* fiv = FreeImage_GetVersion();
+            if (fiv != NULL)
+            {
+                int l = sscanf(fiv, "%d.%d.%d", &v0, &v1, &v2);
+
+                if (l >= 1)
+                    gImageVersion += v0 * 100;
+                if (l >= 2)
+                    gImageVersion += v1;
+            }
+        }
+        return gImageVersion;
+    }
+
+    
+    bool requiredVersion(int v)
+    {
+        return (version() >= v);
+    }
 
     FIBITMAP* LoadBitmap(const char* path)
     {
@@ -177,9 +203,9 @@ namespace imageutils
                 switch(FreeImage_GetBPP(bmp))
                 {
                     case 8:                             
-                    {
-                        BYTE color = (clrBack != NULL) ? *clrBack : 128;
-                        return FreeImage_Rotate(bmp, angle, &color); 
+                    {                        
+                        BYTE color = (clrBack != NULL) ? *clrBack : 128;                        
+                        return RotateBitmap(bmp, angle, &color); 
                     }
                     case 24:
                     case 32:
@@ -189,7 +215,7 @@ namespace imageutils
                         {
                             color.rgbRed = clrBack[0]; color.rgbGreen = clrBack[1]; color.rgbBlue = clrBack[2];
                         }   
-                        return FreeImage_Rotate(bmp, angle, &color);
+                        return RotateBitmap(bmp, angle, &color);
                     }
                 }
                 break;
@@ -197,7 +223,7 @@ namespace imageutils
             case FIT_UINT16:
             {
                 WORD color = (clrBack != NULL) ? *clrBack : 128;
-                return FreeImage_Rotate(bmp, angle, &color);
+                return RotateBitmap(bmp, angle, &color);
             }
             case FIT_RGB16:
             case FIT_RGBA16:
@@ -207,12 +233,12 @@ namespace imageutils
                 {
                     color.red = clrBack[0]; color.green = clrBack[1]; color.blue = clrBack[2]; color.alpha = clrBack[3];
                 }
-                return FreeImage_Rotate(bmp, angle, &color);
+                return RotateBitmap(bmp, angle, &color);
             }
             case FIT_FLOAT:
             {
                 float color = (clrBack != NULL) ? (float)(*clrBack/255.0) : 1.f;
-                return FreeImage_Rotate(bmp, angle, &color);
+                return RotateBitmap(bmp, angle, &color);
             }
             case FIT_RGBF:
             case FIT_RGBAF:
@@ -225,7 +251,7 @@ namespace imageutils
                     color.blue = (float)clrBack[2] / 255.f; 
                     color.alpha = (float)clrBack[3] / 255.f;
                 }                                       
-                return FreeImage_Rotate(bmp, angle, &color);
+                return RotateBitmap(bmp, angle, &color);
             }
         }
         return NULL;
@@ -386,5 +412,16 @@ namespace imageutils
        }
 
        return size;
+    }
+
+    FIBITMAP* RotateBitmap(FIBITMAP* bmp, double angle, const void* ptr)
+    {
+
+#if (FREEIMAGE_MAJOR_VERSION == 3 && FREEIMAGE_MINOR_VERSION >= 15)
+        return FreeImage_Rotate(bmp, angle, ptr);
+#else
+        return FreeImage_RotateClassic(bmp, angle);
+#endif
+        
     }
 }

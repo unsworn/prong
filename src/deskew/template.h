@@ -98,7 +98,7 @@ public:
         crop.size.height = r.size.height;
     }
     
-    Rect*  getCropBox()      { return &crop; }
+    Rect&  getCropBox()      { return crop; }
 
 protected:
     void   fromObject(void* ptr);

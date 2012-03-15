@@ -125,7 +125,10 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
     char path[2048];
     
     double skewAngle = t->getSkewAngle();
-    
+
+    Rect& cropBox = t->getCropBox();
+
+       
     if((bmp = imageutils::LoadBitmap(inputFile)) == NULL)
     {
         ERROR("Unable to open file %s", inputFile);

@@ -10,6 +10,10 @@ class ImageData;
 namespace imageutils
 {   
 
+    int version();
+
+    bool requiredVersion(int v);
+    
     FIBITMAP* LoadBitmap(const char* path);
 
     void FreeBitmap(FIBITMAP* bmp);
@@ -42,6 +46,8 @@ namespace imageutils
     // seems to work for small sized bitmaps only :|
 
     FIBITMAP* GetRotatedBitmapNT(FIBITMAP* bmp, float radians, byte* clrBack );
+
+
     
     /*the pitch is defined as follows: 
     DWORD pitch = (bmWidth+3) & ~3; // round to nearest DWORD 
@@ -69,6 +75,9 @@ namespace imageutils
     unsigned int OneBitRowStride(unsigned int w);
 
     unsigned int GetDataSize(unsigned int w, unsigned int h, unsigned int bitdepth);
+
+    FIBITMAP* RotateBitmap(FIBITMAP* bmp, double angle, const void* ptr = NULL);
+    
 }
                                                                                                        
 
