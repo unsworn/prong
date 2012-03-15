@@ -465,7 +465,7 @@ yajl_val yajl_tree_parse (const char *input,
     status = yajl_parse(handle,
                         (unsigned char *) input,
                         strlen (input));
-    status = yajl_complete_parse (handle);
+    status = yajl_parse_complete (handle);
     if (status != yajl_status_ok) {
         if (error_buffer != NULL && error_buffer_size > 0) {
             snprintf(
