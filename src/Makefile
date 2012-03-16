@@ -16,8 +16,7 @@ install: all
 tools:
 	@$(MAKE) -C deskew
 
-export:
-	@touch ExportTemplate.js
+export: ExportTemplate.js
 
 clean:
 	@$(MAKE) -C deskew clean

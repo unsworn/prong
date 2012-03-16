@@ -203,7 +203,7 @@ int main(int argc, char** argv)
         t.setSkewAngle(angle);
 
         if (gset)
-            t.setCropBox(geometry);
+            t.setCrop(geometry);
         
         crop_and_exit(inputFile, &t, outp);
 

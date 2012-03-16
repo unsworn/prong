@@ -20,6 +20,11 @@ static const char* json_path_name[]      = {"name", NULL};
 static const char* json_path_type[]      = {"type", NULL};
 static const char* json_path_parent[]    = {"parent", NULL};
 static const char* json_path_clz[]       = {"clz", NULL};
+static const char* json_path_width[]     = {"width", NULL};
+static const char* json_path_height[]    = {"height", NULL};
+static const char* json_path_marksx[]    = {"marksx", NULL};
+static const char* json_path_marksy[]    = {"marksy", NULL};
+static const char* json_path_units[]     = {"units", NULL};
 
 /* Box */
 Box::Box() :
@@ -45,7 +50,8 @@ Box::~Box()
          
 /* Template */
 Template::Template() :
-box(NULL)
+        box(NULL),
+        points(false)
 {
     
 }   
@@ -102,6 +108,15 @@ Template::read(const char* path)
 }             
 
 void
+Template::setCrop(Rect &r)
+{
+    crop.origin.x    = r.origin.x;
+    crop.origin.y    = r.origin.y;
+    crop.size.width  = r.size.width;
+    crop.size.height = r.size.height;
+}
+
+void
 Template::fromObject(void* ptr)
 {
     yajl_val obj = (yajl_val) ptr;    
@@ -128,10 +143,35 @@ Template::fromObject(void* ptr)
         tmp = YAJL_GET_STRING(v);
         if (tmp && strcmp("property", tmp) == 0)
             type = GAME_TYPE_PROPERTY;
+        else if (tmp && strcmp("mark", tmp) == 0)
+            type = GAME_TYPE_MARK;
+        else if (tmp && strcmp("info", tmp) == 0)
+            type = GAME_TYPE_INFO;
         else
             type = GAME_TYPE_GRAPHIC;
     }                                 
 
+    if (type == GAME_TYPE_INFO)
+    {
+        if ((v = yajl_tree_get(obj, json_path_width, yajl_t_number)) != NULL)
+            this->size.width = YAJL_GET_DOUBLE(v);
+
+        if ((v = yajl_tree_get(obj, json_path_height, yajl_t_number)) != NULL)
+            this->size.height = YAJL_GET_DOUBLE(v);
+
+        if ((v = yajl_tree_get(obj, json_path_marksx, yajl_t_number)) != NULL)
+            this->markSz.width = YAJL_GET_DOUBLE(v);
+
+        if ((v = yajl_tree_get(obj, json_path_marksy, yajl_t_number)) != NULL)
+            this->markSz.height = YAJL_GET_DOUBLE(v);
+
+        if ((v = yajl_tree_get(obj, json_path_units, yajl_t_string)) != NULL)
+            this->points = (strcmp("points", YAJL_GET_STRING(v)) == 0);
+        
+        return ;
+    }
+
+    
     if (type == GAME_TYPE_PROPERTY && (v = yajl_tree_get(obj, json_path_parent, yajl_t_string)) != NULL)
     {
         tmp = YAJL_GET_STRING(v);
@@ -161,7 +201,8 @@ Template::fromObject(void* ptr)
             clazz = GAME_CLASS_STATIC;
         }
     }       
-        
+
+    
     if ((v = yajl_tree_get(obj, json_path_absoluteX, yajl_t_number)) != NULL)
         aX = YAJL_GET_DOUBLE(v);
 
@@ -185,16 +226,41 @@ Template::fromObject(void* ptr)
 
     if ((v = yajl_tree_get(obj, json_path_relativeH, yajl_t_number)) != NULL)
         rH = YAJL_GET_DOUBLE(v);
-                          
+
     
     if (name != NULL)
     {
+
+        if (type == GAME_TYPE_MARK)
+        {
+            
+            if (strcmp(name, "markTL") == 0)
+            {
+                mark[GAME_MARK_TL].x = aX + (aW/2);
+                mark[GAME_MARK_TL].y = aY + (aH/2);
+            }
+            else if (strcmp(name, "markTR") == 0)
+            {
+                mark[GAME_MARK_TR].x = aX + (aW/2);
+                mark[GAME_MARK_TR].y = aY + (aH/2);
+            }
+            else if (strcmp(name, "markBL") == 0)
+            {
+                mark[GAME_MARK_BL].x = aX + (aW/2);
+                mark[GAME_MARK_BL].y = aY + (aH/2);
+            }
+            else if (strcmp(name, "markBR") == 0)
+            {
+                mark[GAME_MARK_BR].x = aX + (aW/2);
+                mark[GAME_MARK_BR].y = aY + (aH/2);
+            }
+
+            return ;
+            
+        }
+        
         Box* b = new Box();
                 
-        double dW = 841.8896484375;        
-        double dH = 1190.5498046875;
-        
-        
         TRACE("\nLoading definition:\n"
             "%s {\n"
             "\tparent   %s\n"
@@ -204,7 +270,7 @@ Template::fromObject(void* ptr)
             "\tres      [%f, %f, %f, %f]\n"
             "\trel      [%1.14f, %1.14f, %1.14f, %1.14f]\n"
             "}\n",
-            name, parent, type, clazz, aX, aY, aW, aH, rX * dW, rY * dH, rW * dW, rH * dH, rX, rY, rW, rH);
+            name, parent, type, clazz, aX, aY, aW, aH, rX, rY ,rW, rH, rX, rY, rW, rH);
         
         b->name = name;
         b->parent = parent;
@@ -220,7 +286,7 @@ Template::fromObject(void* ptr)
         b->rel.origin.y = rY;
         b->rel.size.width = rW;
         b->rel.size.height = rH;
-        
+
         b->next = this->box;
         
         this->box = b;

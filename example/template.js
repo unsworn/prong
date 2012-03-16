@@ -1,4 +1,61 @@
 [{
+    "name": "document",
+    "type": "info",
+    "width": 841.8896484375,
+    "height": 1190.5498046875,
+    "marksx": 10,
+    "marksy": 10,
+    "units": "points"
+},
+{
+    "absoluteX": 821.8896484375,
+    "absoluteY": 1170.5498046875,
+    "absoluteW": 20,
+    "absoluteH": 20,
+    "relativeX": 0.97624391743369,
+    "relativeY": 0.98320103877952,
+    "relativeW": 0.02375608256631,
+    "relativeH": 0.01679896122048,
+    "name": "markBR",
+    "type": "mark"
+},
+{
+    "absoluteX": 0,
+    "absoluteY": 1170.5498046875,
+    "absoluteW": 20,
+    "absoluteH": 20,
+    "relativeX": 0,
+    "relativeY": 0.98320103877952,
+    "relativeW": 0.02375608256631,
+    "relativeH": 0.01679896122048,
+    "name": "markBL",
+    "type": "mark"
+},
+{
+    "absoluteX": 821.8896484375,
+    "absoluteY": 0,
+    "absoluteW": 20,
+    "absoluteH": 20,
+    "relativeX": 0.97624391743369,
+    "relativeY": 0,
+    "relativeW": 0.02375608256631,
+    "relativeH": 0.01679896122048,
+    "name": "markTR",
+    "type": "mark"
+},
+{
+    "absoluteX": 0,
+    "absoluteY": 0,
+    "absoluteW": 20,
+    "absoluteH": 20,
+    "relativeX": 0,
+    "relativeY": 0,
+    "relativeW": 0.02375608256631,
+    "relativeH": 0.01679896122048,
+    "name": "markTL",
+    "type": "mark"
+},
+{
     "absoluteX": 694.4853515625,
     "absoluteY": 1119.6845703125,
     "absoluteW": 28.3466796875,

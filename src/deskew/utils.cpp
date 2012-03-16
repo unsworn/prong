@@ -126,7 +126,7 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
     
     double skewAngle = t->getSkewAngle();
 
-    Rect& cropBox = t->getCropBox();
+    Rect& cropBox = t->getCrop();
 
        
     if((bmp = imageutils::LoadBitmap(inputFile)) == NULL)
