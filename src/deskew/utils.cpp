@@ -128,7 +128,8 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
 
     Rect& cropBox = t->getCrop();
 
-       
+    Size& makeSize = t->getMarkSize();
+    
     if((bmp = imageutils::LoadBitmap(inputFile)) == NULL)
     {
         ERROR("Unable to open file %s", inputFile);
@@ -141,19 +142,20 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
     int height = FreeImage_GetHeight(bmp);
                    
     TRACE("Rotating input: -%f", skewAngle);
-    
-    FIBITMAP* rmp;
-        
+            
     if (skewAngle != 0)
     {
+        FIBITMAP* rmp = NULL;
+        
         if ((rmp = imageutils::GetRotatedBitmap(bmp, -skewAngle, NULL)) == NULL)
         {
             ERROR("Rotate %f failed on input", skewAngle);
             exit(1);
         }      
-        sprintf(path, "%s/rotated.png", outPath);     
 
-        imageutils::SaveBitmapToFile(rmp, path);
+        //sprintf(path, "%s/rotated.png", outPath);     
+
+        //imageutils::SaveBitmapToFile(rmp, path);
 
         imageutils::FreeBitmap(bmp);
 
@@ -164,15 +166,33 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
         
     }
     
-    
-                                 
+
+    if (!cropBox.isEmpty())
+    {
+
+        FIBITMAP* rmp = NULL;
+        
+        if ((rmp = imageutils::GetCroppedBitmap(bmp, cropBox)) == NULL)
+        {
+            ERROR("Crop failed %d", 112);
+            return ;
+        }
+
+        imageutils::FreeBitmap(bmp);
+
+        bmp = rmp;
+
+        width = FreeImage_GetWidth(bmp);
+        height = FreeImage_GetHeight(bmp);
+        
+    }
+
     Box* ptr = t->getFirstBox();
                      
     while (ptr != NULL)
     {                      
         
-        // 841.8896484375, 1190.5498046875
-          /*              
+        /*
         if (ptr->type == GAME_TYPE_PROPERTY)
         {
             if (ptr->parent != NULL && ptr->owner == NULL)
@@ -189,24 +209,22 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
             crop.size.width  = ptr->rel.size.width * width;
             crop.size.height = ptr->rel.size.height * height;            
             
-            
-            
+                        
             sprintf(path, "%s/%s.png", outPath, ptr->name);
                         
             TRACE("crop[%f, %f, %f, %f] %s", crop.origin.x, crop.origin.y, crop.size.width, crop.size.height, path);
-            
-            FIBITMAP* copy = FreeImage_Copy(
-                bmp,
-                (int)(crop.origin.x),
-                (int)(crop.origin.y),
-                (int)(crop.origin.x + crop.size.width),
-                (int)(crop.origin.y + crop.size.height));
-                                                                   
-            imageutils::SaveBitmapToFile(copy, path);
+
+            FIBITMAP* copy;
+
+            if ((copy = imageutils::GetCroppedBitmap(bmp, crop)) != NULL)
+            {
+                imageutils::SaveBitmapToFile(copy, path);
                                              
-            imageutils::FreeBitmap(copy);
+                imageutils::FreeBitmap(copy);
             
-            ptr->path = strdup(path);
+                ptr->path = strdup(path);
+            }
+            
         }                                                              
                         
         ptr = ptr->next;

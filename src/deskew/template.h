@@ -52,6 +52,8 @@ public:
  */
 class Rect
 {
+public:
+    bool isEmpty() { return size.width == 0 || size.height == 0; }    
 public:    
     Point origin;
     Size  size;

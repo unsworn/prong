@@ -161,18 +161,14 @@ namespace imageutils
         return bmp;
     }
 
-    bool SaveBitmapToFile(FIBITMAP* bmp, const char* path)
+    bool SaveBitmapToFile(FIBITMAP* bmp, const char* path, FREE_IMAGE_FORMAT fif)
     {        
-        FREE_IMAGE_FORMAT fif = FIF_PNG;
         
         if (bmp == NULL)
             return false;
         
-        int bpp = FreeImage_GetBPP(bmp);
+        //int bpp = FreeImage_GetBPP(bmp);
         
-        if (bpp == 24 || bpp == 8)
-            fif = FIF_JPEG;
-            
         return FreeImage_Save(fif, bmp, path, 0);
     }
 

@@ -25,7 +25,7 @@ namespace imageutils
 
     FIBITMAP* CreateBitmapFromPixels(int width, int height, int bitsPerPixel, void* data = NULL);
 
-    bool SaveBitmapToFile(FIBITMAP* bmp, const char* path);
+    bool SaveBitmapToFile(FIBITMAP* bmp, const char* path, FREE_IMAGE_FORMAT fif=FIF_JPEG);
 
     // GetRotatedBitmap - Create a new bitmap with rotated image
     // Returns      - Returns new bitmap with rotated image
