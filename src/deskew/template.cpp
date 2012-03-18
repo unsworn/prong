@@ -77,8 +77,11 @@ Template::read(const char* path)
     JSONData data;
     
     if (!data.read(path))
+    {
+        TRACE("Read %s failed", path);
         return false;
-        
+    }
+    
     yajl_val root = data.get();
     
     if (!YAJL_IS_ARRAY(root))
