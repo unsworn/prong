@@ -107,7 +107,8 @@ Template::read(const char* path)
         this->fromObject(obj);
         
     }
-        
+
+    return true;
 }             
 
 void
