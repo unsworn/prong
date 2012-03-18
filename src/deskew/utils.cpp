@@ -192,7 +192,7 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
     while (ptr != NULL)
     {                      
         
-        /*
+
         if (ptr->type == GAME_TYPE_PROPERTY)
         {
             if (ptr->parent != NULL && ptr->owner == NULL)
@@ -201,7 +201,6 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
             ptr->enabled = checkBoolPixels(ptr, bmp);
         }
         else if (ptr->type == GAME_TYPE_GRAPHIC)
-        */
         {
             Rect crop;
             crop.origin.x    = ptr->rel.origin.x * width;
