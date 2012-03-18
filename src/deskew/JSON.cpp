@@ -9,6 +9,9 @@
 #define MODE_WRITE 1
 #define FILE_MAX 1<<16
 
+#define CLAZ_OBJECT 0
+#define CLAZ_ARRAY 1
+
 bool
 JSONReadFile(const char* path, unsigned char** buf);
 
@@ -56,7 +59,8 @@ JSONReadFile(const char* path, unsigned char** buf)
 JSONData::JSONData() :
         data(NULL),           
         root(NULL),
-        mode(MODE_WRITE)
+        mode(MODE_WRITE),
+        clz(CLAZ_OBJECT)
 {
     
 }
@@ -84,9 +88,9 @@ JSONData::append(const char* name, const char* value)
     int l0 = (int)strlen(data);
     int l1 = (int)strlen(name);
     int l2 = (int)strlen(value);
-    int l3 = 2;
+    int l3 = 3;
 
-    TRACE("append() %d realloc(%d) (%s %s)", l0, l0 + l1 + l2 + l3, name, value);
+    //TRACE("append() %d realloc(%d) (%s %s)", l0, l0 + l1 + l2 + l3, name, value);
 
     tmp = data;
     
@@ -100,13 +104,15 @@ JSONData::append(const char* name, const char* value)
 
     memcpy(data, tmp, l0);
 
-    free(tmp);
-    
-    if (l0 == 1)
+    if (data[l0-1] == '{')
         sprintf(data + l0, "\"%s\":%s", name, value);
     else
         sprintf(data + l0, ",\"%s\":%s", name, value);
-    
+
+    if (tmp != NULL)
+        free(tmp);
+
+
 }
 
 void
@@ -128,15 +134,13 @@ JSONData::append(const char* name, double value)
 const char* 
 JSONData::find(const Path path[])
 {
-    int  i = 0;
-    
-    while (path[i] != NULL)
-    {
-        TRACE("Path: %s", path[i++]);
-        
-    }
-    
     return NULL;
+}
+
+void
+JSONData::array()
+{
+    clz = CLAZ_ARRAY;
 }
 
 void
@@ -145,16 +149,59 @@ JSONData::open()
     if (mode != MODE_WRITE)
         return ;
                 
-    if (data != NULL)
+    if (clz == CLAZ_ARRAY)
+    {
+        if (data == NULL)
+        {
+            data = (char*)malloc(3);
+
+            if (data == NULL)
+            {
+                ERROR("Malloc failed %d", 3);
+                return ;
+            }
+
+            sprintf(data, "[{");
+
+            return ;
+        }
+
+        
+        int len = strlen(data);
+        
+        char* tmp = data;
+
+        data = (char*)malloc(len + 2);
+
+        if (data == NULL)
+        {
+            ERROR("Malloc failed %d", len+2);
+            return ;
+        }
+        
+        memcpy(data, tmp, len);
+
+        sprintf(data+len, "{");
+
+        free(tmp);
+
         return ;
 
+    }
+
+    if (data != NULL)
+        return ;
+    
     data = (char*) malloc(2);
 
     if (data == NULL)
+    {
+        ERROR("Malloc failed %d", 2);
         return ;
+    }
     
-    data[0] = '{';
-    data[1] = '\0';
+    sprintf(data, "{");
+    
 }
 
 void
@@ -173,9 +220,36 @@ JSONData::close()
     
     int len = (int)strlen(data);    
 
-    data = (char*) realloc(data, len + 3);
+    if (clz == CLAZ_ARRAY)
+    {
+        char* tmp = data;
+        
+        data = (char*) malloc(len + 3);
 
-    sprintf(data + len , "}");
+        if (data == NULL)
+        {
+            ERROR("Malloc failed %d", len +3);
+            return ;
+        }
+        
+        memcpy(data, tmp, len);
+        sprintf(data+len, "},");
+        free(tmp);
+        return ;
+    }
+
+    char* tmp = data;
+    data = (char*)malloc(len + 2);
+
+    if (data == NULL)
+    {
+        ERROR("Malloc failed %d", len+2);
+        return ;
+    }
+    
+    memcpy(data, tmp, len);
+    sprintf(data+len , "}");
+    free(tmp);    
     
 }
 
@@ -191,9 +265,16 @@ JSONData::write(const char* f)
 
     FILE* fp;
 
+    int l = strlen(data);
+    
+    if (clz == CLAZ_ARRAY)
+    {
+        data[l] = ']';
+    }
+    
     if ((fp = fopen(f, "w+")) != NULL)
     {
-        fwrite(data, 1, strlen(data), fp);
+        fwrite(data, 1, l, fp);
         fflush(fp);
         fclose(fp);
     }

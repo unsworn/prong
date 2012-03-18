@@ -24,7 +24,58 @@
 bool
 checkBoolPixels(Box* box, FIBITMAP* bmp)
 {
-    return false;
+    unsigned int width = FreeImage_GetWidth(bmp);
+    unsigned int height = FreeImage_GetHeight(bmp);
+    unsigned int pitch = FreeImage_GetPitch(bmp);
+    unsigned int bpp = FreeImage_GetBPP(bmp);
+    unsigned int nc = 0;
+    
+    FREE_IMAGE_TYPE type = FreeImage_GetImageType(bmp);
+
+    int numPixels = 0;
+    int numColors = 0;
+    
+    if ((type == FIT_BITMAP))
+    {
+
+        switch(bpp)
+        {
+            case 32: nc = 4; break;
+            case 24: nc = 3; break;
+            case 16: nc = 2; break;                
+            case 8:
+            default: nc = 1; break;
+        }
+                
+        BYTE* bits = (BYTE*) FreeImage_GetBits(bmp);
+
+        unsigned int x    = (box->rel.origin.x    * width) + 5;
+        unsigned int y    = (box->rel.origin.y    * height)+ 5;            
+        unsigned int w    = (box->rel.size.width  * width) -10;        
+        unsigned int h    = (box->rel.size.height * height)-10;
+
+        unsigned int maxX = (x + w);
+        unsigned int maxY = (y + h);
+
+        for ( ; y < maxY ; y++)
+        {
+            BYTE* pixel = (BYTE*)bits[(y*pitch) + (x * nc)];
+            
+            for ( ; x < maxX ; x++)
+            {                
+                unsigned r = pixel[FI_RGBA_RED];
+                unsigned g = pixel[FI_RGBA_GREEN];
+                unsigned b = pixel[FI_RGBA_BLUE];
+
+                if (r > 128 || g > 128 || b > 128)
+                    numColors++;                
+                pixel += nc;
+                numPixels++;
+            }
+        }
+    }
+
+    return ((float)numColors / (float)numPixels) > 0.4;
 }                
 
 void
@@ -189,18 +240,19 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
         
     }
 
+    
     Box* ptr = t->getFirstBox();
                      
     while (ptr != NULL)
     {                      
-        
 
         if (ptr->type == GAME_TYPE_PROPERTY)
         {
             if (ptr->parent != NULL && ptr->owner == NULL)
                 ptr->owner = t->getBox(ptr->parent, GAME_TYPE_GRAPHIC);                
-        
-            ptr->enabled = checkBoolPixels(ptr, bmp);
+
+            ptr->enabled = true; //checkBoolPixels(ptr, bmp);
+
         }
         else if (ptr->type == GAME_TYPE_GRAPHIC)
         {
@@ -237,6 +289,38 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
                         
         ptr = ptr->next;
     }
+
+
+    JSONData data;
+
+    data.array();
+    
+    ptr = t->getFirstBox();
+                     
+    while (ptr != NULL)
+    {                      
+
+        if (ptr->type == GAME_TYPE_PROPERTY)
+        {
+            data.open();
+            
+            data.append("name", ptr->name);
+            data.append("parent", ptr->parent);
+            data.append("enabled", (ptr->enabled) ? "true" : "false");
+
+            data.close();
+
+        }
+
+        ptr = ptr->next;
+        
+    }
+
+
+    sprintf(path, "%s/properties.js", outPath);
+
+    data.write(path);
+    
     exit(0);
 }
 

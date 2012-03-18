@@ -17,19 +17,24 @@ public:
     void append(const char* name, double value);
                    
     const char* find(const Path path[]);
+
+    void array();
     
     void open();    
+
     void close();
     
     yajl_val get() { return root; }
     
     void write(const char* path);
+    
     bool read(const char* path);
     
 private:
     char*    data;      
     yajl_val root;
     int      mode;
+    int      clz;
 };
 
 #endif
