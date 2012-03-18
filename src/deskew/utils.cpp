@@ -178,6 +178,8 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
             return ;
         }
 
+        imageutils::SaveBitmapToFile(rmp, "/tmp/out/cropped.jpg", FIF_JPEG);
+        
         imageutils::FreeBitmap(bmp);
 
         bmp = rmp;
@@ -203,12 +205,19 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
         else if (ptr->type == GAME_TYPE_GRAPHIC)
         {
             Rect crop;
+
             crop.origin.x    = ptr->rel.origin.x * width;
             crop.origin.y    = ptr->rel.origin.y * height;            
             crop.size.width  = ptr->rel.size.width * width;
             crop.size.height = ptr->rel.size.height * height;            
+
+            crop.origin.x += 10;
+            crop.origin.y += 10;
+
+            crop.size.width -= 20;
+            crop.size.height -= 20;
             
-                        
+            
             sprintf(path, "%s/%s.png", outPath, ptr->name);
                         
             TRACE("crop[%f, %f, %f, %f] %s", crop.origin.x, crop.origin.y, crop.size.width, crop.size.height, path);
