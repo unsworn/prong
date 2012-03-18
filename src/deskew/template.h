@@ -32,7 +32,8 @@ enum
  */
 class Point
 {         
-public:    
+public:
+    Point() : x(0), y(0) {}        
     float x;
     float y;
 };
@@ -42,7 +43,8 @@ public:
  */
 class Size
 {         
-public:    
+public:
+    Size() : width(0), height(0) {}
     float width;
     float height;
 };
@@ -53,6 +55,7 @@ public:
 class Rect
 {
 public:
+    Rect() {}
     bool isEmpty() { return size.width == 0 || size.height == 0; }    
 public:    
     Point origin;

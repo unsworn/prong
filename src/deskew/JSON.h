@@ -2,7 +2,8 @@
 #define JSON_H_
 
 #include "ytree.h"
-                 
+#include "buffer.h"
+
 class JSONData
 {
 public:
@@ -31,7 +32,7 @@ public:
     bool read(const char* path);
     
 private:
-    char*    data;      
+    buffer   data;      
     yajl_val root;
     int      mode;
     int      clz;

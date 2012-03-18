@@ -57,25 +57,29 @@ checkBoolPixels(Box* box, FIBITMAP* bmp)
         unsigned int maxX = (x + w);
         unsigned int maxY = (y + h);
 
-        for ( ; y < maxY ; y++)
+        
+        for (unsigned int yy=y ; yy < maxY ; yy++)
         {
-            BYTE* pixel = (BYTE*)bits[(y*pitch) + (x * nc)];
             
-            for ( ; x < maxX ; x++)
-            {                
+            for (unsigned int xx=x; xx < maxX ; xx++)
+            {
+                BYTE* pixel = (bits + ((yy*pitch) + (xx * nc)));
+
                 unsigned r = pixel[FI_RGBA_RED];
                 unsigned g = pixel[FI_RGBA_GREEN];
                 unsigned b = pixel[FI_RGBA_BLUE];
 
-                if (r > 128 || g > 128 || b > 128)
-                    numColors++;                
+                if (r > 240 && g > 240 && b > 240)
+                    numColors++;
+                
                 pixel += nc;
                 numPixels++;
             }
         }
     }
 
-    return ((float)numColors / (float)numPixels) > 0.4;
+    
+    return ((float)numColors / (float)numPixels) < 0.6;
 }                
 
 void
@@ -251,7 +255,7 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
             if (ptr->parent != NULL && ptr->owner == NULL)
                 ptr->owner = t->getBox(ptr->parent, GAME_TYPE_GRAPHIC);                
 
-            ptr->enabled = true; //checkBoolPixels(ptr, bmp);
+            ptr->enabled = checkBoolPixels(ptr, bmp);
 
         }
         else if (ptr->type == GAME_TYPE_GRAPHIC)

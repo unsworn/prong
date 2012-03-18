@@ -57,7 +57,6 @@ JSONReadFile(const char* path, unsigned char** buf)
 }   
 
 JSONData::JSONData() :
-        data(NULL),           
         root(NULL),
         mode(MODE_WRITE),
         clz(CLAZ_OBJECT)
@@ -68,51 +67,28 @@ JSONData::JSONData() :
 
 JSONData::~JSONData()
 {
-    if (mode == MODE_WRITE && data != NULL)
-        free(data);
     if (mode == MODE_READ && root != NULL)
         yajl_tree_free(root);
         
-    data = NULL;
     root = NULL;
 }
 
 void
 JSONData::append(const char* name, const char* value)
 {
-    char* tmp;
-    
-    if (data == NULL || mode != MODE_WRITE)
+    if (mode != MODE_WRITE)
         return ;
 
-    int l0 = (int)strlen(data);
-    int l1 = (int)strlen(name);
-    int l2 = (int)strlen(value);
-    int l3 = 3;
+    char c;
 
-    //TRACE("append() %d realloc(%d) (%s %s)", l0, l0 + l1 + l2 + l3, name, value);
+    if ((c = data.last()) != 0)
+        if (c != '{')
+            data.append(",");
 
-    tmp = data;
-    
-    data = (char*)malloc(l0 + l1 + l2 + l3);
-    
-    if (data == NULL)
-    {
-        ERROR("append() malloc failed %d", 2);
-        return ;
-    }
-
-    memcpy(data, tmp, l0);
-
-    if (data[l0-1] == '{')
-        sprintf(data + l0, "\"%s\":%s", name, value);
-    else
-        sprintf(data + l0, ",\"%s\":%s", name, value);
-
-    if (tmp != NULL)
-        free(tmp);
-
-
+    data.append("\"");
+    data.append(name);
+    data.append("\":");
+    data.append(value);
 }
 
 void
@@ -151,56 +127,19 @@ JSONData::open()
                 
     if (clz == CLAZ_ARRAY)
     {
-        if (data == NULL)
+        if (data.length() == 0)
         {
-            data = (char*)malloc(3);
-
-            if (data == NULL)
-            {
-                ERROR("Malloc failed %d", 3);
-                return ;
-            }
-
-            sprintf(data, "[{");
-
+            data.append("[{");
             return ;
         }
-
-        
-        int len = strlen(data);
-        
-        char* tmp = data;
-
-        data = (char*)malloc(len + 2);
-
-        if (data == NULL)
-        {
-            ERROR("Malloc failed %d", len+2);
-            return ;
-        }
-        
-        memcpy(data, tmp, len);
-
-        sprintf(data+len, "{");
-
-        free(tmp);
-
+        if (data.last() == '}')
+            data.append(",");
+        data.append("{");        
         return ;
 
     }
 
-    if (data != NULL)
-        return ;
-    
-    data = (char*) malloc(2);
-
-    if (data == NULL)
-    {
-        ERROR("Malloc failed %d", 2);
-        return ;
-    }
-    
-    sprintf(data, "{");
+    data.append("{");
     
 }
 
@@ -215,41 +154,7 @@ JSONData::close()
         return ;
     }                     
     
-    if (data == NULL)
-        return ;
-    
-    int len = (int)strlen(data);    
-
-    if (clz == CLAZ_ARRAY)
-    {
-        char* tmp = data;
-        
-        data = (char*) malloc(len + 3);
-
-        if (data == NULL)
-        {
-            ERROR("Malloc failed %d", len +3);
-            return ;
-        }
-        
-        memcpy(data, tmp, len);
-        sprintf(data+len, "},");
-        free(tmp);
-        return ;
-    }
-
-    char* tmp = data;
-    data = (char*)malloc(len + 2);
-
-    if (data == NULL)
-    {
-        ERROR("Malloc failed %d", len+2);
-        return ;
-    }
-    
-    memcpy(data, tmp, len);
-    sprintf(data+len , "}");
-    free(tmp);    
+    data.append("}");
     
 }
 
@@ -260,21 +165,17 @@ JSONData::write(const char* f)
     if (mode != MODE_WRITE)
         return ;
         
-    if (data == NULL || f == NULL)
+    if (f == NULL)
         return ;
 
     FILE* fp;
 
-    int l = strlen(data);
-    
     if (clz == CLAZ_ARRAY)
-    {
-        data[l] = ']';
-    }
+        data.append("]");
     
     if ((fp = fopen(f, "w+")) != NULL)
     {
-        fwrite(data, 1, l, fp);
+        fwrite(data.get(), 1, data.length(), fp);
         fflush(fp);
         fclose(fp);
     }
@@ -285,9 +186,6 @@ JSONData::read(const char* f)
 {   
     unsigned char* buf = NULL;
     char err[1024];
-    
-    if (data != NULL)
-        return false;   
         
     mode = MODE_READ;
     
