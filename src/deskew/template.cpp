@@ -53,7 +53,7 @@ Template::Template() :
         box(NULL),
         points(false)
 {
-    
+    scale = 1.0;
 }   
 
 Template::~Template()

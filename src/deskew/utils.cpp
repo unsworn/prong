@@ -69,7 +69,10 @@ checkBoolPixels(Box* box, FIBITMAP* bmp)
                 unsigned g = pixel[FI_RGBA_GREEN];
                 unsigned b = pixel[FI_RGBA_BLUE];
 
-                if (r > 240 && g > 240 && b > 240)
+                unsigned int wa   = (r*77)+(g*151)+(b*28);
+                unsigned int gray = ((wa>>8)&0x000000FF);
+                
+                if (gray > 200)
                     numColors++;
                 
                 pixel += nc;
@@ -233,7 +236,7 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
             return ;
         }
 
-        imageutils::SaveBitmapToFile(rmp, "/tmp/out/cropped.jpg", FIF_JPEG);
+        // imageutils::SaveBitmapToFile(rmp, "/tmp/out/cropped.jpg", FIF_JPEG);
         
         imageutils::FreeBitmap(bmp);
 
@@ -246,7 +249,12 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
 
     
     Box* ptr = t->getFirstBox();
-                     
+
+    double finalScale = t->getFinalScale();
+
+    unsigned int insetsX = (0.01 * width);
+    unsigned int insetsY = (0.01 * height);
+    
     while (ptr != NULL)
     {                      
 
@@ -266,13 +274,13 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
             crop.origin.y    = ptr->rel.origin.y * height;            
             crop.size.width  = ptr->rel.size.width * width;
             crop.size.height = ptr->rel.size.height * height;            
+                 
 
-            crop.origin.x += 10;
-            crop.origin.y += 10;
+            crop.origin.x += insetsX;
+            crop.origin.y += insetsY;
 
-            crop.size.width -= 20;
-            crop.size.height -= 20;
-            
+            crop.size.width  -= (2 * insetsX);
+            crop.size.height -= (2 * insetsY);
             
             sprintf(path, "%s/%s.png", outPath, ptr->name);
                         
@@ -282,6 +290,21 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
 
             if ((copy = imageutils::GetCroppedBitmap(bmp, crop)) != NULL)
             {
+                if (finalScale != 1.0)
+                {
+                    crop.origin.x = crop.origin.y = 0;
+                    crop.size.width  *= finalScale;
+                    crop.size.height *= finalScale;
+                    FIBITMAP* scaled = NULL;
+
+                    if ((scaled = imageutils::GetScaledBitmap(copy, crop)) != NULL)
+                    {
+                        imageutils::FreeBitmap(copy);
+                        copy = scaled;
+                    }
+
+                }
+
                 imageutils::SaveBitmapToFile(copy, path);
                                              
                 imageutils::FreeBitmap(copy);

@@ -112,6 +112,10 @@ public:
     Size&  getSize() { return size; }
 
     Size&  getMarkSize() { return markSz; }
+
+    void   setFinalScale(double s) { scale = s; }
+
+    double getFinalScale() { return scale; }
     
 protected:
     void   fromObject(void* ptr);
@@ -124,6 +128,7 @@ private:
     Size   size;
     Size   markSz;
     bool   points;
+    double scale;
 };                      
 
 #endif

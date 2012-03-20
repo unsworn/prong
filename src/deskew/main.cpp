@@ -118,7 +118,7 @@ int main(int argc, char** argv)
     double        angle   = 0;
     bool          gset    = false;
     Rect          geometry;
-
+    float         scale   = 1.0;
     
     if (!options_parse(argc, argv, NULL, &opt))      
     {
@@ -171,6 +171,8 @@ int main(int argc, char** argv)
     if ((o = options_find("s", &opt)) != NULL)
     {
         mode |= MODE_SCALE;
+        if (!gset)
+            scale = atof(options_strval(o));
     }
 
     if ((o = options_find("j", &opt)) != NULL)
@@ -204,6 +206,8 @@ int main(int argc, char** argv)
 
         if (gset)
             t.setCrop(geometry);
+
+        t.setFinalScale(scale);
         
         crop_and_exit(inputFile, &t, outp);
 
@@ -250,6 +254,13 @@ int main(int argc, char** argv)
         
         FIBITMAP* rmp;
 
+        if (!gset)
+        {
+            geometry.origin.x = geometry.origin.y = 0;
+            geometry.size.width  = (float)FreeImage_GetWidth(bmp)  * scale;
+            geometry.size.height = (float)FreeImage_GetHeight(bmp) * scale;
+        }
+        
         if ((rmp = imageutils::GetScaledBitmap(bmp, geometry)) == NULL)
         {
             ERROR("Unable to scale %d", 0);
