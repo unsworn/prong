@@ -30,6 +30,9 @@ public:
     void write(const char* path);
     
     bool read(const char* path);
+
+protected:
+    void push(const char* name, const char* value);
     
 private:
     buffer   data;      

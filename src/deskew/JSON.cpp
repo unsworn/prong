@@ -76,19 +76,9 @@ JSONData::~JSONData()
 void
 JSONData::append(const char* name, const char* value)
 {
-    if (mode != MODE_WRITE)
-        return ;
-
-    char c;
-
-    if ((c = data.last()) != 0)
-        if (c != '{')
-            data.append(",");
-
-    data.append("\"");
-    data.append(name);
-    data.append("\":");
-    data.append(value);
+    char tmp[1024];
+    sprintf(tmp, "\"%s\"", value);
+    this->push(name, tmp);
 }
 
 void
@@ -96,7 +86,7 @@ JSONData::append(const char* name, int value)
 {
     char tmp[256];
     sprintf(tmp, "%d", value);
-    return this->append(name, tmp);
+    this->push(name, tmp);
 }
 
 void
@@ -104,7 +94,7 @@ JSONData::append(const char* name, double value)
 {
     char tmp[256];
     sprintf(tmp, "%f", value);
-    return this->append(name, tmp);
+    this->push(name, tmp);
 }
 
 const char* 
@@ -223,4 +213,23 @@ JSONData::read(const char* f)
     
     return true;
     
+}
+
+
+void
+JSONData::push(const char* name, const char* value)
+{
+    if (mode != MODE_WRITE)
+        return ;
+
+    char c;
+
+    if ((c = data.last()) != 0)
+        if (c != '{')
+            data.append(",");
+
+    data.append("\"");
+    data.append(name);
+    data.append("\":");
+    data.append(value);
 }
