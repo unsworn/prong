@@ -297,7 +297,7 @@ int main(int argc, char** argv)
 
     if (outp != NULL && tmlp == NULL)
     {
-        imageutils::SaveBitmapToFile(bmp, outp);
+        imageutils::SaveBitmapToFile(bmp, outp, FIF_PNG);
         return 0;
     }                   
                 

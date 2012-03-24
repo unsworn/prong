@@ -305,7 +305,7 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
 
                 }
 
-                imageutils::SaveBitmapToFile(copy, path);
+                imageutils::SaveBitmapToFile(copy, path, FIF_PNG);
                                              
                 imageutils::FreeBitmap(copy);
             
