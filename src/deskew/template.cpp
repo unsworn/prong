@@ -149,6 +149,8 @@ Template::fromObject(void* ptr)
             type = GAME_TYPE_PROPERTY;
         else if (tmp && strcmp("mark", tmp) == 0)
             type = GAME_TYPE_MARK;
+        else if (tmp && strcmp("baseline", tmp) == 0)
+            type = GAME_TYPE_BASE;
         else if (tmp && strcmp("info", tmp) == 0)
             type = GAME_TYPE_INFO;
         else
@@ -186,6 +188,7 @@ Template::fromObject(void* ptr)
     if (type == GAME_TYPE_GRAPHIC && (v = yajl_tree_get(obj, json_path_clz, yajl_t_string)) != NULL)
     {
         tmp = YAJL_GET_STRING(v);
+        
         
         // background, player, entity, static
         if (strcmp("background", tmp) == 0)

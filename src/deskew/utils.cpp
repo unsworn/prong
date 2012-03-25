@@ -20,20 +20,108 @@
 #include "JSON.h"
 
 #include "utils.h"
-                  
-bool
-checkBoolPixels(Box* box, FIBITMAP* bmp)
+
+FIBITMAP*
+addAlphaChannel(FIBITMAP* in, unsigned int WHITE)
 {
-    unsigned int width = FreeImage_GetWidth(bmp);
+
+    if (in == NULL)
+    {
+        ERROR("addAlphaChannel() invalid input %d", in);
+        return NULL;
+    }
+
+    unsigned int bpp    = FreeImage_GetBPP(in);
+
+    FIBITMAP* bmp = NULL;
+
+    if ((bmp = FreeImage_ConvertTo32Bits(in)) == NULL)
+    {
+        ERROR("addAlphaChannel(), %d => 32 bits conversion failed", bpp);
+        return NULL;
+    }
+
+    bpp = FreeImage_GetBPP(bmp);
+    
+    //TRACE("addAlphaChannel(), bpp = %d", bpp);
+
+    unsigned int width  = FreeImage_GetWidth(bmp);
     unsigned int height = FreeImage_GetHeight(bmp);
-    unsigned int pitch = FreeImage_GetPitch(bmp);
-    unsigned int bpp = FreeImage_GetBPP(bmp);
-    unsigned int nc = 0;
+    unsigned int pitch  = FreeImage_GetPitch(bmp);
+
+    unsigned int r,g,b,a;
+    
+    BYTE* bits = (BYTE*) FreeImage_GetBits(bmp);
+
+    for (int y=0 ; y < height ; y++)
+    {
+        BYTE* pixels = (BYTE*)bits;
+
+        for (int x=0 ; x < width ; x++)
+        {
+            r = pixels[FI_RGBA_RED];
+            g = pixels[FI_RGBA_GREEN];
+            b = pixels[FI_RGBA_BLUE];
+
+            pixels[FI_RGBA_ALPHA] = WHITE - ((r + g + b)/3);
+            
+            pixels += 4;
+        }
+
+        bits += pitch;
+
+    }
+
+    return bmp;
+}
+
+unsigned int
+getIntensityAverage(Box* box, FIBITMAP* bmp)
+{
+
+    if (box == NULL || bmp == NULL)
+        return 255;
+
+    unsigned int width  = FreeImage_GetWidth(bmp);
+    unsigned int height = FreeImage_GetHeight(bmp);
+
+    unsigned long gray    = 0;
+    
+    unsigned int x    = (box->rel.origin.x    * width) + 5;
+    unsigned int y    = (box->rel.origin.y    * height)+ 5;            
+    unsigned int w    = (box->rel.size.width  * width) -10;        
+    unsigned int h    = (box->rel.size.height * height)-10;
+
+    Rect crop;
+    crop.origin.x    = x;
+    crop.origin.y    = y;
+    crop.size.width  = w;
+    crop.size.height = h;
+    
+    FIBITMAP* copy;
+    
+    if ((copy = imageutils::GetCroppedBitmap(bmp, crop)) == NULL)
+    {
+        ERROR("getColorAverage() copy pixels failed %d", 1);
+        return 255;
+    }
+
+    bmp = copy;
+
+#if 0
+    imageutils::SaveBitmapToFile(copy, "/tmp/out/intensity_average.png");
+#endif
     
     FREE_IMAGE_TYPE type = FreeImage_GetImageType(bmp);
 
-    int numPixels = 0;
-    int numColors = 0;
+    width  = FreeImage_GetWidth(bmp);
+    height = FreeImage_GetHeight(bmp);
+
+    unsigned int pitch  = FreeImage_GetPitch(bmp);
+    unsigned int bpp    = FreeImage_GetBPP(bmp);
+    unsigned int nc     = 0;
+
+    unsigned int sum = 0;
     
     if ((type == FIT_BITMAP))
     {
@@ -49,41 +137,48 @@ checkBoolPixels(Box* box, FIBITMAP* bmp)
                 
         BYTE* bits = (BYTE*) FreeImage_GetBits(bmp);
 
-        unsigned int x    = (box->rel.origin.x    * width) + 5;
-        unsigned int y    = (box->rel.origin.y    * height)+ 5;            
-        unsigned int w    = (box->rel.size.width  * width) -10;        
-        unsigned int h    = (box->rel.size.height * height)-10;
-
-        unsigned int maxX = (x + w);
-        unsigned int maxY = (y + h);
-
-        
-        for (unsigned int yy=y ; yy < maxY ; yy++)
+        for (y=0 ; y < height ; y++)
         {
+            BYTE* pixels = (BYTE*)bits;
             
-            for (unsigned int xx=x; xx < maxX ; xx++)
+            for (x=0 ; x < width ; x++)
             {
-                BYTE* pixel = (bits + ((yy*pitch) + (xx * nc)));
-
-                unsigned r = pixel[FI_RGBA_RED];
-                unsigned g = pixel[FI_RGBA_GREEN];
-                unsigned b = pixel[FI_RGBA_BLUE];
-
-                unsigned int wa   = (r*77)+(g*151)+(b*28);
-                unsigned int gray = ((wa>>8)&0x000000FF);
-                
-                if (gray > 200)
-                    numColors++;
-                
-                pixel += nc;
-                numPixels++;
+                sum    = (pixels[FI_RGBA_RED]*77)+(pixels[FI_RGBA_GREEN]*151)+(pixels[FI_RGBA_BLUE]*28);
+                gray   += ((sum>>8)&0x000000FF);
+                pixels += nc;              
             }
+
+            bits += pitch;
         }
     }
-
     
-    return ((float)numColors / (float)numPixels) < 0.6;
-}                
+    imageutils::FreeBitmap(bmp);
+
+    return (gray / (width * height));
+    
+}
+
+unsigned int
+getBaseline(Box* box, FIBITMAP* bmp)
+{
+    unsigned int base  = 200;
+    unsigned int delta = 0;
+    
+    base = getIntensityAverage(box, bmp);
+
+    if (base < 200)
+        delta = 200 - base;
+
+    return (255 - delta);
+    
+}
+
+bool
+checkBoolPixels(Box* box, FIBITMAP* bmp, unsigned int WHITE)
+{
+    unsigned int a = getIntensityAverage(box, bmp);
+    return (a < (WHITE/2));
+}
 
 void
 calculate_skew_and_exit(const char* path, bool degrees, const char* outp)
@@ -236,7 +331,9 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
             return ;
         }
 
-        // imageutils::SaveBitmapToFile(rmp, "/tmp/out/cropped.jpg", FIF_JPEG);
+#if 0        
+        imageutils::SaveBitmapToFile(rmp, "/tmp/out/cropped.jpg", FIF_JPEG);
+#endif
         
         imageutils::FreeBitmap(bmp);
 
@@ -247,8 +344,16 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
         
     }
 
+    unsigned int WHITE = 255;
     
-    Box* ptr = t->getFirstBox();
+    Box* ptr = t->getBox("base", GAME_TYPE_BASE);
+
+    if (ptr != NULL)
+        WHITE = getBaseline(ptr, bmp);
+
+    TRACE("Image Background WHITE: %d\n", WHITE);
+    
+    ptr = t->getFirstBox();
 
     double finalScale = t->getFinalScale();
 
@@ -263,7 +368,7 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
             if (ptr->parent != NULL && ptr->owner == NULL)
                 ptr->owner = t->getBox(ptr->parent, GAME_TYPE_GRAPHIC);                
 
-            ptr->enabled = checkBoolPixels(ptr, bmp);
+            ptr->enabled = checkBoolPixels(ptr, bmp, WHITE);
 
         }
         else if (ptr->type == GAME_TYPE_GRAPHIC)
@@ -305,6 +410,19 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
 
                 }
 
+                if (ptr->clazz != GAME_CLASS_BACKGROUND)
+                {
+                    FIBITMAP* alpha = NULL;
+
+                    if ((alpha = addAlphaChannel(copy, WHITE)) != NULL)
+                    {
+                        imageutils::FreeBitmap(copy);
+                        copy = alpha;
+                    }
+                }
+                else
+                    TRACE("skipping alpha on background.. %d", 0);
+                
                 imageutils::SaveBitmapToFile(copy, path, FIF_PNG);
                                              
                 imageutils::FreeBitmap(copy);
@@ -350,6 +468,11 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
     
     exit(0);
 }
+
+//------------------------------------------------------------------------------------------------------------
+
+// optimal cut for 150dpi A3, 18x18+1713+2443
+// ./deskew -o /tmp/out -j ../../example/template.js -c -g 19x19+1714+2442 ../../example/template.jpg
 
 //------------------------------------------------------------------------------------------------------------
 
