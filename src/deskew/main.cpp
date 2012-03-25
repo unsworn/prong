@@ -88,7 +88,8 @@ usage()
     fprintf(stderr, "\t-c             crop\n");
     fprintf(stderr, "\t-s             scale\n");
     fprintf(stderr, "\t-i             info\n");    
-    fprintf(stderr, "\t-v             (be verbose)\n");
+    fprintf(stderr, "\t-v             (be verbose)\n");             
+    fprintf(stderr, "\t-f             format (png,jpg)\n");
     fprintf(stderr, "\t-g             geometry XxY+W+H with -c or -s\n");
     
     exit(1);
@@ -118,7 +119,9 @@ int main(int argc, char** argv)
     double        angle   = 0;
     bool          gset    = false;
     Rect          geometry;
-    float         scale   = 1.0;
+    float         scale   = 1.0;        
+    
+    FREE_IMAGE_FORMAT fifout = FIF_JPEG;
     
     if (!options_parse(argc, argv, NULL, &opt))      
     {
@@ -181,7 +184,12 @@ int main(int argc, char** argv)
         mode = MODE_PROCESS;
         TRACE("FILE: %s", tmlp);
     }
-
+                        
+    if ((o = options_find("f", &opt)) != NULL)
+    {
+        if (strcmp("png", options_strval(o)) == 0) 
+            fifout = FIF_PNG;
+    }
     
     if ((o = options_find("arg0", &opt)) != NULL)
         inputFile = options_strval(o);
@@ -297,7 +305,7 @@ int main(int argc, char** argv)
 
     if (outp != NULL && tmlp == NULL)
     {
-        imageutils::SaveBitmapToFile(bmp, outp, FIF_PNG);
+        imageutils::SaveBitmapToFile(bmp, outp, fifout);
         return 0;
     }                   
                 
