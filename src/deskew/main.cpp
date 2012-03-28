@@ -91,6 +91,7 @@ usage()
     fprintf(stderr, "\t-v             (be verbose)\n");             
     fprintf(stderr, "\t-f             format (png,jpg)\n");
     fprintf(stderr, "\t-b             final height (background)\n");
+    fprintf(stderr, "\t-p             prevent skew detect with -i\n");
     fprintf(stderr, "\t-g             geometry XxY+W+H with -c or -s\n");
     
     exit(1);
@@ -122,6 +123,7 @@ int main(int argc, char** argv)
     Rect          geometry;
     float         scale   = 1.0;        
     int           finalh  = 0;
+    bool          dosd    = true;
     
     FREE_IMAGE_FORMAT fifout = FIF_JPEG;
     
@@ -197,6 +199,11 @@ int main(int argc, char** argv)
     {
         finalh = atol(options_strval(o));
     }
+
+    if ((o = options_find("p", &opt)) != NULL)
+    {
+        dosd = false;
+    }
     
     if ((o = options_find("arg0", &opt)) != NULL)
         inputFile = options_strval(o);
@@ -236,7 +243,7 @@ int main(int argc, char** argv)
     if ((mode & MODE_INFO))
     {
         TRACE("Gathering info %d\n", mode);
-        calculate_skew_and_exit(inputFile, degrees, outp);
+        calculate_skew_and_exit(inputFile, degrees, outp, dosd);
     }
 
     TRACE("Work %d", mode);

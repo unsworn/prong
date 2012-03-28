@@ -183,7 +183,7 @@ checkBoolPixels(Box* box, FIBITMAP* bmp, unsigned int WHITE)
 }
 
 void
-calculate_skew_and_exit(const char* path, bool degrees, const char* outp)
+calculate_skew_and_exit(const char* path, bool degrees, const char* outp, bool dosd)
 {
     JSONData   json;
     FIBITMAP*  bmp;
@@ -237,16 +237,19 @@ calculate_skew_and_exit(const char* path, bool degrees, const char* outp)
     height = FreeImage_GetHeight(bmp);
     
     TRACE("Finding skew angle: [%dx%d]", width, height);
-    
-    if ((i = imageutils::GetOp(bmp)) != NULL)
+
+    if (dosd)
     {
-        if (!a.GetSkewAngle(false, *i, skewAngle, 0))
-            INFO("GetSkewAngle() bmp == %s failed", path);
-        
-        delete i;
+        if ((i = imageutils::GetOp(bmp)) != NULL)
+        {
+            if (!a.GetSkewAngle(false, *i, skewAngle, 0))
+                INFO("GetSkewAngle() bmp == %s failed", path);
+            
+            delete i;
+        }
+        else
+            INFO("GetOp() bmp == %s failed", path);
     }
-    else
-        INFO("GetOp() bmp == %s failed", path);
     
     imageutils::FreeBitmap(bmp);
     

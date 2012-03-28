@@ -4,7 +4,7 @@
 #include "template.h"
             
 void
-calculate_skew_and_exit(const char*, bool, const char*);
+calculate_skew_and_exit(const char*, bool, const char*, bool);
               
 void
 crop_and_exit(const char*, Template*, const char*);
