@@ -90,6 +90,7 @@ usage()
     fprintf(stderr, "\t-i             info\n");    
     fprintf(stderr, "\t-v             (be verbose)\n");             
     fprintf(stderr, "\t-f             format (png,jpg)\n");
+    fprintf(stderr, "\t-b             final height (background)\n");
     fprintf(stderr, "\t-g             geometry XxY+W+H with -c or -s\n");
     
     exit(1);
@@ -120,6 +121,7 @@ int main(int argc, char** argv)
     bool          gset    = false;
     Rect          geometry;
     float         scale   = 1.0;        
+    int           finalh  = 0;
     
     FREE_IMAGE_FORMAT fifout = FIF_JPEG;
     
@@ -190,6 +192,11 @@ int main(int argc, char** argv)
         if (strcmp("png", options_strval(o)) == 0) 
             fifout = FIF_PNG;
     }
+
+    if ((o = options_find("b", &opt)) != NULL)
+    {
+        finalh = atol(options_strval(o));
+    }
     
     if ((o = options_find("arg0", &opt)) != NULL)
         inputFile = options_strval(o);
@@ -216,6 +223,8 @@ int main(int argc, char** argv)
             t.setCrop(geometry);
 
         t.setFinalScale(scale);
+
+        t.setFinalHeight(finalh);
         
         crop_and_exit(inputFile, &t, outp);
 

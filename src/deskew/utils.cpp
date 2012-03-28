@@ -21,6 +21,7 @@
 
 #include "utils.h"
 
+
 FIBITMAP*
 addAlphaChannel(FIBITMAP* in, unsigned int WHITE)
 {
@@ -177,6 +178,7 @@ bool
 checkBoolPixels(Box* box, FIBITMAP* bmp, unsigned int WHITE)
 {
     unsigned int a = getIntensityAverage(box, bmp);
+    TRACE("Property: %s == %d", box->name, a < (WHITE/2));
     return (a < (WHITE/2));
 }
 
@@ -359,6 +361,31 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
 
     unsigned int insetsX = (0.01 * width);
     unsigned int insetsY = (0.01 * height);
+
+
+    Region region;
+
+    region.setSource(width, height);
+    region.setInsets(insetsX, insetsY);
+    
+    int finalHeight = t->getFinalHeight();
+
+    if (finalHeight != 0)
+    {
+        Rect c;
+
+        Box* bg = t->getBox("background", GAME_TYPE_GRAPHIC);
+
+        if (bg != NULL)
+        {
+            region.get(bg, c);
+
+            finalScale = (float)finalHeight / c.size.height;
+        }
+        else
+            ERROR("Unable to retrive background for finalScale %d", 144);
+        
+    }
     
     while (ptr != NULL)
     {                      
@@ -374,7 +401,7 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
         else if (ptr->type == GAME_TYPE_GRAPHIC)
         {
             Rect crop;
-
+            /*
             crop.origin.x    = ptr->rel.origin.x * width;
             crop.origin.y    = ptr->rel.origin.y * height;            
             crop.size.width  = ptr->rel.size.width * width;
@@ -386,6 +413,9 @@ crop_and_exit(const char* inputFile, Template* t, const char* outPath)
 
             crop.size.width  -= (2 * insetsX);
             crop.size.height -= (2 * insetsY);
+            */
+
+            region.get(ptr, crop);
             
             sprintf(path, "%s/%s.png", outPath, ptr->name);
                         

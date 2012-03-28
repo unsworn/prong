@@ -71,7 +71,8 @@ class Box
 public:
     Box();
     virtual ~Box();
-    
+
+
     Box*  next;  
     Box*  owner;                          
     char* name;       
@@ -83,7 +84,41 @@ public:
     char* path;
     bool  enabled;
 };
-   
+
+class Region
+{
+public:
+    Region() : width(0), height(0), insetsX(0), insetsY(0) {}
+    virtual ~Region() {}
+    
+    void setSource(unsigned int w, unsigned int h) { width = w; height = h; }
+
+    void setInsets(unsigned int x, unsigned int y) { insetsX = x; insetsY = y; }
+
+    void get(Box* ptr, Rect &r)
+    {
+        if (NULL == ptr)
+            return ;
+        
+        r.origin.x    = ptr->rel.origin.x    * width;
+        r.origin.y    = ptr->rel.origin.y    * height;            
+        r.size.width  = ptr->rel.size.width  * width;
+        r.size.height = ptr->rel.size.height * height;            
+        
+        r.origin.x += insetsX;
+        r.origin.y += insetsY;
+        
+        r.size.width  -= (2 * insetsX);
+        r.size.height -= (2 * insetsY);
+
+    }
+    
+private:
+    unsigned int width;
+    unsigned int height;
+    unsigned int insetsX;
+    unsigned int insetsY;
+};
         
 /**
  * Game Template
@@ -117,6 +152,11 @@ public:
     void   setFinalScale(double s) { scale = s; }
 
     double getFinalScale() { return scale; }
+
+    void   setFinalHeight(int h) { fh = h; }
+
+    int    getFinalHeight() { return fh; }
+
     
 protected:
     void   fromObject(void* ptr);
@@ -130,6 +170,7 @@ private:
     Size   markSz;
     bool   points;
     double scale;
-};                      
+    unsigned int fh;
+};    
 
 #endif
