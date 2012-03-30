@@ -4,5 +4,6 @@ WorkspaceSettings.xcsettings
 *.xcbkptlist
 *.xcuserstate
 *.tag
+*.o
 docs
 .DS_Store
