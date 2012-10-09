@@ -39,41 +39,39 @@ create table groups (
 );
 
 create table constraints (
-    game int(64) not null default '0',
-    type int(32) not null default '0',
-    points longblob default null,
-    bb_top int(32) not null default '0',
-    bb_left int(32) not null default '0',
-    bb_right int(32) not null default '0',
-    bb_bottom int(32) not null default '0'
+    game varchar(32) not null default '',
+    type varchar(32) not null default '',
+    sx int(32) not null default 0,
+    sy int(32) not null default 0,
+    ex int(32) not null default 0,
+    ey int(32) not null default 0
 );
 
 create table properties (
-    element int(64) not null default '0',
+    game varchar(32) not null default '',
+    element varchar(255) not null default '',
     name varchar(255) not null default '',
-    value varchar(512) default null
+    enabled char(1) default '0'
 );
 
 create table game (
-    id int(64) not null auto_increment,    
-    user int(32) not null,
+    id varchar(32) not null default '--',
+    user int(32) not null,  
+    grp int(32) not null,
     name varchar(255) not null,
     created timestamp not null,
     modified timestamp not null,    
     source varchar(255) default null,
     root varchar(512) default null,
+    sounds varchar(512) default 'default',
+    mtempo int(32) default 5,
     primary key (id)
 );
 
 create table element (
-    id int(64) not null auto_increment,
-    project int(64) not null,
-    name varchar(255) not null,
-    bb_top int(32) not null default '0',
-    bb_left int(32) not null default '0',
-    bb_right int(32) not null default '0',
-    bb_bottom int(32) not null default '0',
-    em_type int(32) not null default '0',    
-    primary key (id)
+    game varchar(32) not null default '',
+    name varchar(255) not null default '',
+    sx int(32) not null default 0,
+    sy int(32) not null default 0
 );
 
